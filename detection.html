@@ -665,9 +665,55 @@
 
         function buildFallbackWaveform() {
             return Array.from({ length: 72 }, (_, index) => {
-                const center = Math.abs(index - 36);
-                const burst = center < 6 || (center > 12 && center < 18) || (center > 22 && center < 30);
-                return burst ? 0.7 + Math.random() * 0.3 : 0.22 + Math.random() * 0.18;
+                const inFirstCluster = index >= 15 && index <= 27;
+                const inSecondCluster = index >= 34 && index <= 47;
+                const inThirdCluster = index >= 51 && index <= 63;
+                const inCluster = inFirstCluster || inSecondCluster || inThirdCluster;
+                const distanceFromLocalCenter = inFirstCluster
+                    ? Math.abs(index - 21)
+                    : inSecondCluster
+                        ? Math.abs(index - 40)
+                        : Math.abs(index - 57);
+
+                if (inCluster) {
+                    const peakShape = Math.max(0, 1 - distanceFromLocalCenter / 7);
+                    return 0.42 + peakShape * 0.52 + Math.random() * 0.08;
+                }
+
+                return 0.12 + Math.random() * 0.12;
+            });
+        }
+
+        function normalizeWaveform(samples) {
+            const targetLength = 72;
+
+            if (!samples.length) {
+                return buildFallbackWaveform();
+            }
+
+            const chunkSize = Math.max(1, Math.floor(samples.length / targetLength));
+            const normalized = [];
+
+            for (let index = 0; index < targetLength; index += 1) {
+                const start = index * chunkSize;
+                const chunk = samples.slice(start, start + chunkSize);
+                const average = chunk.length
+                    ? chunk.reduce((sum, value) => sum + value, 0) / chunk.length
+                    : 0;
+                normalized.push(average);
+            }
+
+            const max = Math.max(...normalized, 0.01);
+
+            return normalized.map((value, index) => {
+                const scaled = value / max;
+                const emphasis =
+                    (index >= 15 && index <= 27) ||
+                    (index >= 34 && index <= 47) ||
+                    (index >= 51 && index <= 63)
+                        ? 1.12
+                        : 0.82;
+                return Math.max(0.1, Math.min(1, scaled * emphasis));
             });
         }
 
@@ -695,7 +741,7 @@
         }
 
         function renderWaveform(samples) {
-            const values = samples.length ? samples : buildFallbackWaveform();
+            const values = normalizeWaveform(samples);
             waveform.innerHTML = "";
 
             values.slice(0, 72).forEach((value, index) => {
@@ -703,7 +749,11 @@
                 const strength = Math.max(0.18, Math.min(1, value));
                 const height = 14 + strength * 72;
                 const glow = 0.35 + strength * 0.65;
-                const hue = index > 33 && index < 44 ? "#ffb000" : "#b9841a";
+                const inHighlightCluster =
+                    (index >= 15 && index <= 27) ||
+                    (index >= 34 && index <= 47) ||
+                    (index >= 51 && index <= 63);
+                const hue = inHighlightCluster ? "#ffb000" : "#9a6c15";
 
                 bar.className = "bar";
                 bar.style.height = `${height}px`;
