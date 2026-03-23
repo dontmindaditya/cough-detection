@@ -46,6 +46,40 @@
             width: min(920px, 100%);
         }
 
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+            padding: 10px 14px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .brand img {
+            width: 46px;
+            height: 46px;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+
+        .brand-copy {
+            display: grid;
+            gap: 2px;
+        }
+
+        .brand-copy strong {
+            font-size: 0.98rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .brand-copy span {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
         .card {
             background: linear-gradient(180deg, rgba(24, 24, 24, 0.96), rgba(17, 17, 17, 0.96));
             border: 1px solid var(--border);
@@ -136,10 +170,10 @@
         }
 
         .recording-stage {
-            min-height: 160px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 240px;
+            display: grid;
+            align-content: center;
+            gap: 26px;
         }
 
         .recording-status {
@@ -147,8 +181,9 @@
             align-items: center;
             gap: 14px;
             color: #b9a27f;
-            font-size: 1.9rem;
+            font-size: 1.4rem;
             letter-spacing: -0.03em;
+            justify-content: center;
         }
 
         .spinner {
@@ -158,6 +193,39 @@
             border: 3px solid rgba(255, 255, 255, 0.08);
             border-top-color: var(--accent-2);
             animation: spin 0.9s linear infinite;
+        }
+
+        .live-wave-shell {
+            border-top: 1px solid var(--border-soft);
+            border-bottom: 1px solid var(--border-soft);
+            padding: 24px 0 18px;
+        }
+
+        .live-wave-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--muted-2);
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+        }
+
+        .live-wave {
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .live-bar {
+            flex: 1 1 0;
+            min-width: 4px;
+            height: 20px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #7a5710, #c88f18);
+            transform-origin: center;
+            animation: livePulse 1.2s ease-in-out infinite;
+            opacity: 0.92;
         }
 
         .report-header {
@@ -387,6 +455,17 @@
             }
         }
 
+        @keyframes livePulse {
+            0%, 100% {
+                transform: scaleY(0.3);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+        }
+
         @media (max-width: 780px) {
             body {
                 padding: 16px;
@@ -424,6 +503,14 @@
 </head>
 <body>
     <main class="shell">
+        <div class="brand">
+            <img src="logo.png" alt="Project logo">
+            <div class="brand-copy">
+                <strong>Cough Detection</strong>
+                <span>10-second respiratory sample capture</span>
+            </div>
+        </div>
+
         <section class="card" id="recorderCard">
             <div class="panel record-stage" id="idleStage">
                 <div class="dropzone">
@@ -450,6 +537,13 @@
             </div>
 
             <div class="panel recording-stage hidden" id="recordingStage">
+                <div class="live-wave-shell">
+                    <div class="live-wave-meta">
+                        <span>0s</span>
+                        <span>10s</span>
+                    </div>
+                    <div class="live-wave" id="liveWave"></div>
+                </div>
                 <div class="recording-status">
                     <span class="spinner" aria-hidden="true"></span>
                     <span>Recording...</span>
@@ -545,6 +639,7 @@
         const reportCard = document.getElementById("reportCard");
         const countdown = document.getElementById("countdown");
         const waveform = document.getElementById("waveform");
+        const liveWave = document.getElementById("liveWave");
         const reportMeta = document.getElementById("reportMeta");
         const durationInfo = document.getElementById("durationInfo");
 
@@ -573,6 +668,29 @@
                 const center = Math.abs(index - 36);
                 const burst = center < 6 || (center > 12 && center < 18) || (center > 22 && center < 30);
                 return burst ? 0.7 + Math.random() * 0.3 : 0.22 + Math.random() * 0.18;
+            });
+        }
+
+        function renderLiveWave() {
+            liveWave.innerHTML = "";
+
+            Array.from({ length: 68 }, (_, index) => {
+                const bar = document.createElement("div");
+                const clusterBoost =
+                    (index > 14 && index < 24) ||
+                    (index > 31 && index < 41) ||
+                    (index > 48 && index < 58);
+                const duration = 0.9 + (index % 9) * 0.08;
+                const delay = (index % 12) * 0.07;
+                const height = clusterBoost ? 76 + (index % 5) * 6 : 28 + (index % 4) * 5;
+                const color = clusterBoost ? "#ffb000" : "#a97717";
+
+                bar.className = "live-bar";
+                bar.style.height = `${height}px`;
+                bar.style.animationDelay = `${delay}s`;
+                bar.style.animationDuration = `${duration}s`;
+                bar.style.background = `linear-gradient(180deg, ${color}, #ffab00)`;
+                liveWave.appendChild(bar);
             });
         }
 
@@ -735,6 +853,7 @@
         }
 
         recordBtn.addEventListener("click", startRecording);
+        renderLiveWave();
         renderWaveform(buildFallbackWaveform());
     </script>
 </body>
