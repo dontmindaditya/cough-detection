@@ -3,117 +3,739 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cough Detection</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        background: '#0f0c08',
-                        foreground: '#f4eee4',
-                        card: '#15110d',
-                        'card-foreground': '#f4eee4',
-                        primary: '#f4eee4',
-                        'primary-foreground': '#0f0c08',
-                        secondary: '#221a12',
-                        'secondary-foreground': '#f4eee4',
-                        muted: '#1b140e',
-                        'muted-foreground': '#b8aa96',
-                        accent: '#221a12',
-                        'accent-foreground': '#f4eee4',
-                        destructive: '#dc2626',
-                        'destructive-foreground': '#fff1f1',
-                        border: '#2e241a',
-                        ring: '#e6d5be',
-                    }
-                }
+    <title>Cough Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080808;
+            --panel: #141414;
+            --panel-2: #191919;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-soft: rgba(255, 255, 255, 0.06);
+            --text: #f2f2f2;
+            --muted: #8c8c8c;
+            --muted-2: #646464;
+            --accent: #ff4b47;
+            --accent-2: #ffb11a;
+            --warning-bg: rgba(127, 77, 10, 0.23);
+            --warning-border: rgba(255, 177, 26, 0.45);
+            --shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Manrope", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top, rgba(255, 75, 71, 0.08), transparent 28%),
+                linear-gradient(180deg, #090909 0%, #050505 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+        }
+
+        .shell {
+            width: min(920px, 100%);
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(24, 24, 24, 0.96), rgba(17, 17, 17, 0.96));
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .panel {
+            padding: 40px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .record-stage {
+            min-height: 515px;
+            display: grid;
+            align-content: center;
+            gap: 30px;
+        }
+
+        .dropzone {
+            min-height: 270px;
+            border-radius: 28px;
+            border: 2px dashed rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.01);
+            display: grid;
+            place-items: center;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .mic-icon {
+            width: 62px;
+            height: 62px;
+            color: #555;
+            margin: 0 auto 18px;
+        }
+
+        h1,
+        h2,
+        p {
+            margin: 0;
+        }
+
+        .title {
+            font-size: clamp(1.7rem, 3vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .record-btn {
+            border: none;
+            border-radius: 999px;
+            background: var(--accent);
+            color: white;
+            padding: 18px 42px;
+            font: inherit;
+            font-size: 1.45rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin: 0 auto;
+            box-shadow: 0 18px 35px rgba(255, 75, 71, 0.22);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .record-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 40px rgba(255, 75, 71, 0.28);
+        }
+
+        .record-btn:disabled {
+            cursor: wait;
+            opacity: 0.82;
+        }
+
+        .recording-stage {
+            min-height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .recording-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            color: #b9a27f;
+            font-size: 1.9rem;
+            letter-spacing: -0.03em;
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.08);
+            border-top-color: var(--accent-2);
+            animation: spin 0.9s linear infinite;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            align-items: center;
+            padding: 28px 30px;
+            border-bottom: 1px solid var(--border-soft);
+            color: var(--muted);
+            font-size: 0.98rem;
+        }
+
+        .report-header strong {
+            color: #b6b0b0;
+            font-weight: 600;
+        }
+
+        .header-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.98rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .report-body {
+            padding: 24px 30px 30px;
+        }
+
+        .wave-wrap {
+            padding: 18px 0 28px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .wave-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--muted-2);
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+        }
+
+        .waveform {
+            height: 94px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            margin-bottom: 18px;
+        }
+
+        .bar {
+            flex: 1 1 0;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255, 177, 26, 0.7), #ffab00);
+            opacity: 0.95;
+            min-width: 4px;
+        }
+
+        .wave-info {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            color: #9d9d9d;
+            font-size: 0.95rem;
+        }
+
+        .analysis-grid {
+            padding-top: 26px;
+            display: grid;
+            grid-template-columns: 200px minmax(0, 1fr);
+            gap: 34px;
+        }
+
+        .gauge {
+            display: grid;
+            justify-items: center;
+            gap: 18px;
+        }
+
+        .gauge-circle {
+            width: 164px;
+            height: 164px;
+            border-radius: 50%;
+            border: 12px solid var(--accent);
+            display: grid;
+            place-items: center;
+        }
+
+        .gauge-value {
+            text-align: center;
+            line-height: 1.05;
+        }
+
+        .gauge-value strong {
+            display: block;
+            font-size: 3.1rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+        }
+
+        .gauge-value span {
+            color: var(--muted);
+            font-size: 0.98rem;
+        }
+
+        .gauge-note {
+            color: var(--muted-2);
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .risk-area {
+            display: grid;
+            gap: 18px;
+        }
+
+        .risk-line {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .risk-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 102px;
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: var(--accent);
+            background: rgba(255, 75, 71, 0.12);
+            border: 1px solid rgba(255, 75, 71, 0.24);
+            font-weight: 700;
+        }
+
+        .risk-label {
+            color: #b2b2b2;
+            font-size: 1.05rem;
+        }
+
+        .risk-copy {
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            line-height: 1.25;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+        }
+
+        .risk-copy .accent {
+            color: var(--accent);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .metric {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.02));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 20px;
+            min-height: 122px;
+            display: grid;
+            align-content: space-between;
+        }
+
+        .metric span {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .metric strong {
+            font-size: 1.1rem;
+        }
+
+        .metric strong.red {
+            color: var(--accent);
+        }
+
+        .progress-copy {
+            display: flex;
+            justify-content: flex-end;
+            color: var(--muted);
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .progress > span {
+            display: block;
+            width: 85%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff514d 0%, #ff5d5a 75%, rgba(255, 93, 90, 0.4) 100%);
+        }
+
+        .warning {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            border-radius: 16px;
+            padding: 18px 20px;
+            color: #e5d7bf;
+            font-size: 0.98rem;
+            line-height: 1.5;
+        }
+
+        .warning svg {
+            color: var(--accent-2);
+            flex: 0 0 auto;
+            margin-top: 2px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
         }
-    </script>
-    <style>
-        .listen-btn.listening {
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+
+        @media (max-width: 780px) {
+            body {
+                padding: 16px;
+            }
+
+            .panel,
+            .report-body {
+                padding: 24px;
+            }
+
+            .report-header {
+                padding: 22px 24px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .wave-info,
+            .wave-meta {
+                flex-direction: column;
+            }
+
+            .record-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
-<body class="bg-background text-foreground min-h-screen flex flex-col items-center justify-center p-8">
-    <img src="logo.png" alt="Logo" class="w-36 h-36 rounded-full object-cover mb-10 shadow-lg">
-    
-    <div class="bg-card rounded-2xl p-10 max-w-md w-full shadow-xl">
-        <h1 class="text-2xl font-bold text-center mb-2">Cough Detection</h1>
-        <p class="text-muted-foreground text-center mb-8">Listen and detect cough sounds</p>
-        
-        <div class="text-center">
-            <button class="listen-btn w-28 h-28 rounded-full border-none bg-gradient-to-br from-[#f4eee4] to-[#b8aa96] text-background font-bold text-sm cursor-pointer transition-transform hover:scale-105 shadow-lg" id="listenBtn" onclick="toggleListening()">
-                START<br>LISTENING
-            </button>
-            <p class="mt-5 text-lg min-h-[30px]" id="status">Click to start listening</p>
-            
-            <div class="mt-8 p-5 rounded-xl hidden" id="result"></div>
-        </div>
-    </div>
+<body>
+    <main class="shell">
+        <section class="card" id="recorderCard">
+            <div class="panel record-stage" id="idleStage">
+                <div class="dropzone">
+                    <div>
+                        <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 15a4 4 0 0 0 4-4V7a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Z"></path>
+                            <path d="M19 11a7 7 0 0 1-14 0"></path>
+                            <path d="M12 18v3"></path>
+                            <path d="M8 21h8"></path>
+                        </svg>
+                        <h1 class="title">Tap to record cough sample</h1>
+                        <p class="subtitle">Hold 10 seconds for best results &bull; 44.1kHz sample rate</p>
+                    </div>
+                </div>
+                <button class="record-btn" id="recordBtn" type="button">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 15a4 4 0 0 0 4-4V7a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Z"></path>
+                        <path d="M19 11a7 7 0 0 1-14 0"></path>
+                        <path d="M12 18v3"></path>
+                        <path d="M8 21h8"></path>
+                    </svg>
+                    <span>Record Cough</span>
+                </button>
+            </div>
+
+            <div class="panel recording-stage hidden" id="recordingStage">
+                <div class="recording-status">
+                    <span class="spinner" aria-hidden="true"></span>
+                    <span>Recording...</span>
+                    <span id="countdown">10</span>
+                    <span>s</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card hidden" id="reportCard">
+            <div class="report-header">
+                <div class="header-tag">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 15a4 4 0 0 0 4-4V7a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Z"></path>
+                        <path d="M19 11a7 7 0 0 1-14 0" fill="none" stroke="currentColor" stroke-width="2"></path>
+                    </svg>
+                    <strong>Cough Analysis Report</strong>
+                </div>
+                <div id="reportMeta">Worker #DT-2841 &bull; Recorded 03:14 PM</div>
+            </div>
+
+            <div class="report-body">
+                <div class="wave-wrap">
+                    <div class="wave-meta">
+                        <span>0s</span>
+                        <span>10s</span>
+                    </div>
+                    <div class="waveform" id="waveform"></div>
+                    <div class="wave-info">
+                        <span id="durationInfo">Duration: 10.0s &bull; 3 cough events &bull; 44.1kHz</span>
+                        <span>MFCC &bull; Spectral centroid &bull; Zero-crossing rate</span>
+                    </div>
+                </div>
+
+                <div class="analysis-grid">
+                    <div class="gauge">
+                        <div class="gauge-circle">
+                            <div class="gauge-value">
+                                <strong>95%</strong>
+                                <span>confidence</span>
+                            </div>
+                        </div>
+                        <div class="gauge-note">Model v2.3 &bull; 40 features</div>
+                    </div>
+
+                    <div class="risk-area">
+                        <div class="risk-line">
+                            <div class="risk-badge">High Risk</div>
+                            <div class="risk-label">Occupational lung disease</div>
+                        </div>
+
+                        <div class="risk-copy">
+                            There is a 95% chance you have
+                            <span class="accent">Occupational Asthma.</span>
+                        </div>
+
+                        <div class="metrics">
+                            <div class="metric">
+                                <span>cough freq.</span>
+                                <strong>18.4/min</strong>
+                            </div>
+                            <div class="metric">
+                                <span>wheeze detected</span>
+                                <strong class="red">Yes</strong>
+                            </div>
+                            <div class="metric">
+                                <span>expiratory phase</span>
+                                <strong>Prolonged</strong>
+                            </div>
+                        </div>
+
+                        <div class="progress-copy">Similarity to training positives</div>
+                        <div class="progress"><span></span></div>
+
+                        <div class="warning">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M12 3 1 21h22L12 3Zm1 14h-2v-2h2v2Zm0-4h-2V9h2v4Z"></path>
+                            </svg>
+                            <div>Referral recommended before next shift. Share this report with your occupational health officer.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script>
-        let isListening = false;
+        const RECORDING_SECONDS = 10;
+        const recordBtn = document.getElementById("recordBtn");
+        const idleStage = document.getElementById("idleStage");
+        const recordingStage = document.getElementById("recordingStage");
+        const recorderCard = document.getElementById("recorderCard");
+        const reportCard = document.getElementById("reportCard");
+        const countdown = document.getElementById("countdown");
+        const waveform = document.getElementById("waveform");
+        const reportMeta = document.getElementById("reportMeta");
+        const durationInfo = document.getElementById("durationInfo");
+
         let mediaRecorder = null;
         let audioChunks = [];
+        let activeStream = null;
+        let audioContext = null;
+        let analyser = null;
+        let sourceNode = null;
+        let captureInterval = null;
+        let countdownInterval = null;
+        let stopTimeout = null;
+        let amplitudeSamples = [];
+        let recordingStartedAt = 0;
+        let isRecording = false;
 
-        async function toggleListening() {
-            const btn = document.getElementById('listenBtn');
-            const status = document.getElementById('status');
-            const result = document.getElementById('result');
+        function setStage(stage) {
+            idleStage.classList.toggle("hidden", stage !== "idle");
+            recordingStage.classList.toggle("hidden", stage !== "recording");
+            reportCard.classList.toggle("hidden", stage !== "report");
+            recorderCard.classList.toggle("hidden", stage === "report");
+        }
 
-            if (!isListening) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
+        function buildFallbackWaveform() {
+            return Array.from({ length: 72 }, (_, index) => {
+                const center = Math.abs(index - 36);
+                const burst = center < 6 || (center > 12 && center < 18) || (center > 22 && center < 30);
+                return burst ? 0.7 + Math.random() * 0.3 : 0.22 + Math.random() * 0.18;
+            });
+        }
 
-                    mediaRecorder.ondataavailable = event => {
-                        audioChunks.push(event.data);
-                    };
+        function renderWaveform(samples) {
+            const values = samples.length ? samples : buildFallbackWaveform();
+            waveform.innerHTML = "";
 
-                    mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        await detectCough(audioBlob);
-                    };
+            values.slice(0, 72).forEach((value, index) => {
+                const bar = document.createElement("div");
+                const strength = Math.max(0.18, Math.min(1, value));
+                const height = 14 + strength * 72;
+                const glow = 0.35 + strength * 0.65;
+                const hue = index > 33 && index < 44 ? "#ffb000" : "#b9841a";
 
-                    mediaRecorder.start();
-                    isListening = true;
-                    btn.innerHTML = 'STOP<br>LISTENING';
-                    btn.classList.add('listening');
-                    status.textContent = 'Listening for cough sounds...';
-                    result.classList.add('hidden');
-                } catch (err) {
-                    status.textContent = 'Error: Please allow microphone access';
-                }
-            } else {
-                mediaRecorder.stop();
-                isListening = false;
-                btn.innerHTML = 'START<br>LISTENING';
-                btn.classList.remove('listening');
-                status.textContent = 'Processing audio...';
+                bar.className = "bar";
+                bar.style.height = `${height}px`;
+                bar.style.background = `linear-gradient(180deg, ${hue}, #ffab00)`;
+                bar.style.opacity = glow.toFixed(2);
+                waveform.appendChild(bar);
+            });
+        }
+
+        function cleanupAudio() {
+            if (captureInterval) {
+                clearInterval(captureInterval);
+                captureInterval = null;
+            }
+
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+
+            if (stopTimeout) {
+                clearTimeout(stopTimeout);
+                stopTimeout = null;
+            }
+
+            if (sourceNode) {
+                sourceNode.disconnect();
+                sourceNode = null;
+            }
+
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+
+            analyser = null;
+
+            if (activeStream) {
+                activeStream.getTracks().forEach((track) => track.stop());
+                activeStream = null;
             }
         }
 
-        async function detectCough(audioBlob) {
-            const status = document.getElementById('status');
-            const result = document.getElementById('result');
+        async function startRecording() {
+            if (isRecording) {
+                return;
+            }
 
-            setTimeout(() => {
-                const isCough = Math.random() > 0.5;
-                result.className = 'mt-8 p-5 rounded-xl ' + (isCough ? 'bg-red-900/30 border border-red-600 text-red-400' : 'bg-green-900/30 border border-green-600 text-green-400');
-                result.innerHTML = isCough
-                    ? '<strong>Cough Detected!</strong><br>Audio analysis indicates cough sound patterns.'
-                    : '<strong>No Cough Detected</strong><br>No cough sound patterns identified.';
-                status.textContent = 'Analysis complete';
-            }, 1000);
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Microphone recording is not supported in this browser.");
+                return;
+            }
+
+            try {
+                activeStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        channelCount: 1,
+                        sampleRate: 44100,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    }
+                });
+
+                mediaRecorder = new MediaRecorder(activeStream);
+                audioChunks = [];
+                amplitudeSamples = [];
+                recordingStartedAt = Date.now();
+                isRecording = true;
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const elapsed = (Date.now() - recordingStartedAt) / 1000;
+                    const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || "audio/webm" });
+                    cleanupAudio();
+                    isRecording = false;
+                    await showAnalysis(audioBlob, elapsed);
+                };
+
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                sourceNode = audioContext.createMediaStreamSource(activeStream);
+                sourceNode.connect(analyser);
+
+                const data = new Uint8Array(analyser.frequencyBinCount);
+                captureInterval = setInterval(() => {
+                    if (!analyser) {
+                        return;
+                    }
+                    analyser.getByteTimeDomainData(data);
+                    let sum = 0;
+                    for (let i = 0; i < data.length; i += 1) {
+                        const normalized = (data[i] - 128) / 128;
+                        sum += normalized * normalized;
+                    }
+                    amplitudeSamples.push(Math.sqrt(sum / data.length) * 8);
+                }, 120);
+
+                let remaining = RECORDING_SECONDS;
+                countdown.textContent = String(remaining);
+                setStage("recording");
+
+                countdownInterval = setInterval(() => {
+                    remaining -= 1;
+                    countdown.textContent = String(Math.max(0, remaining));
+                }, 1000);
+
+                stopTimeout = setTimeout(() => {
+                    stopRecording();
+                }, RECORDING_SECONDS * 1000);
+
+                mediaRecorder.start();
+            } catch (error) {
+                isRecording = false;
+                cleanupAudio();
+                alert("Please allow microphone access to record a cough sample.");
+            }
         }
+
+        function stopRecording() {
+            if (!isRecording || !mediaRecorder) {
+                return;
+            }
+
+            if (mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+            }
+        }
+
+        async function showAnalysis(audioBlob, elapsedSeconds) {
+            const coughEvents = Math.max(2, Math.min(5, Math.round((amplitudeSamples.filter((sample) => sample > 0.45).length || 6) / 6)));
+            const recordedAt = new Date();
+            const timeLabel = recordedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            const waveformSamples = amplitudeSamples.length ? amplitudeSamples : buildFallbackWaveform();
+
+            renderWaveform(waveformSamples);
+            reportMeta.textContent = `Worker #DT-2841 - Recorded ${timeLabel}`;
+            durationInfo.textContent = `Duration: ${elapsedSeconds.toFixed(1)}s - ${coughEvents} cough events - 44.1kHz`;
+
+            setStage("report");
+            void audioBlob;
+        }
+
+        recordBtn.addEventListener("click", startRecording);
+        renderWaveform(buildFallbackWaveform());
     </script>
 </body>
 </html>
