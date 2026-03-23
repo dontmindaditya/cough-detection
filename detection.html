@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cough Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        .logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .listen-section {
+            text-align: center;
+        }
+        .listen-btn {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .listen-btn:hover {
+            transform: scale(1.05);
+        }
+        .listen-btn.listening {
+            animation: pulse 1.5s infinite;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .status {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+            min-height: 30px;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .result.cough {
+            background: #ffe5e5;
+            border: 2px solid #ff6b6b;
+            color: #c0392b;
+        }
+        .result.no-cough {
+            background: #e5f5e5;
+            border: 2px solid #27ae60;
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <img src="logo.png" alt="Logo" class="logo">
+    <div class="container">
+        <h1>Cough Detection</h1>
+        <p class="subtitle">Listen and detect cough sounds</p>
+        <div class="listen-section">
+            <button class="listen-btn" id="listenBtn" onclick="toggleListening()">
+                START<br>LISTENING
+            </button>
+            <p class="status" id="status">Click to start listening</p>
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let isListening = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        async function toggleListening() {
+            const btn = document.getElementById('listenBtn');
+            const status = document.getElementById('status');
+            const result = document.getElementById('result');
+
+            if (!isListening) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        await detectCough(audioBlob);
+                    };
+
+                    mediaRecorder.start();
+                    isListening = true;
+                    btn.innerHTML = 'STOP<br>LISTENING';
+                    btn.classList.add('listening');
+                    status.textContent = 'Listening for cough sounds...';
+                    result.classList.remove('show');
+                } catch (err) {
+                    status.textContent = 'Error: Please allow microphone access';
+                }
+            } else {
+                mediaRecorder.stop();
+                isListening = false;
+                btn.innerHTML = 'START<br>LISTENING';
+                btn.classList.remove('listening');
+                status.textContent = 'Processing audio...';
+            }
+        }
+
+        async function detectCough(audioBlob) {
+            const status = document.getElementById('status');
+            const result = document.getElementById('result');
+
+            // Placeholder - integrate with your ML model here
+            setTimeout(() => {
+                const isCough = Math.random() > 0.5;
+                result.className = 'result show ' + (isCough ? 'cough' : 'no-cough');
+                result.innerHTML = isCough
+                    ? '<strong>Cough Detected!</strong><br>Audio analysis indicates cough sound patterns.'
+                    : '<strong>No Cough Detected</strong><br>No cough sound patterns identified.';
+                status.textContent = 'Analysis complete';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
