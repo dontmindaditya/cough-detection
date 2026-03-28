@@ -3,923 +3,1019 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cough Analysis</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Dustinel AI - Cough Analysis</title>
     <style>
-        :root {
-            --bg: #080808;
-            --panel: #141414;
-            --panel-2: #191919;
-            --border: rgba(255, 255, 255, 0.1);
-            --border-soft: rgba(255, 255, 255, 0.06);
-            --text: #f2f2f2;
-            --muted: #8c8c8c;
-            --muted-2: #646464;
-            --accent: #ff4b47;
-            --accent-2: #ffb11a;
-            --warning-bg: rgba(127, 77, 10, 0.23);
-            --warning-border: rgba(255, 177, 26, 0.45);
-            --shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
-        }
-
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #e5e5e5;
             min-height: 100vh;
-            font-family: "Manrope", sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top, rgba(255, 75, 71, 0.08), transparent 28%),
-                linear-gradient(180deg, #090909 0%, #050505 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 28px;
+            padding: 20px;
         }
 
-        .shell {
-            width: min(920px, 100%);
+        .container {
+            width: 100%;
+            max-width: 900px;
         }
 
-        .brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 18px;
-            padding: 10px 14px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .brand img {
-            width: 46px;
-            height: 46px;
-            object-fit: cover;
-            border-radius: 14px;
-        }
-
-        .brand-copy {
-            display: grid;
-            gap: 2px;
-        }
-
-        .brand-copy strong {
-            font-size: 0.98rem;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-        }
-
-        .brand-copy span {
-            color: var(--muted);
-            font-size: 0.9rem;
-        }
-
-        .card {
-            background: linear-gradient(180deg, rgba(24, 24, 24, 0.96), rgba(17, 17, 17, 0.96));
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            box-shadow: var(--shadow);
+        .analysis-card {
+            background: #141414;
+            border-radius: 16px;
+            border: 1px solid #2a2a2a;
             overflow: hidden;
         }
 
-        .panel {
-            padding: 40px;
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 32px;
+            border-bottom: 1px solid #2a2a2a;
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        .record-stage {
-            min-height: 515px;
-            display: grid;
-            align-content: center;
-            gap: 30px;
-        }
-
-        .dropzone {
-            min-height: 270px;
-            border-radius: 28px;
-            border: 2px dashed rgba(255, 255, 255, 0.08);
-            background: rgba(255, 255, 255, 0.01);
-            display: grid;
-            place-items: center;
-            text-align: center;
-            padding: 24px;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #a3a3a3;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .mic-icon {
-            width: 62px;
-            height: 62px;
-            color: #555;
-            margin: 0 auto 18px;
+            width: 16px;
+            height: 16px;
+            color: #ef4444;
         }
 
-        h1,
-        h2,
-        p {
-            margin: 0;
+        .header-right {
+            color: #737373;
+            font-size: 13px;
+            font-weight: 400;
         }
 
-        .title {
-            font-size: clamp(1.7rem, 3vw, 2.5rem);
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            margin-bottom: 10px;
+        .waveform-section {
+            padding: 32px;
+            border-bottom: 1px solid #2a2a2a;
         }
 
-        .subtitle {
-            color: var(--muted);
-            font-size: 1.05rem;
-            line-height: 1.6;
-        }
-
-        .record-btn {
-            border: none;
-            border-radius: 999px;
-            background: var(--accent);
-            color: white;
-            padding: 18px 42px;
-            font: inherit;
-            font-size: 1.45rem;
-            font-weight: 800;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            margin: 0 auto;
-            box-shadow: 0 18px 35px rgba(255, 75, 71, 0.22);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-        }
-
-        .record-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 22px 40px rgba(255, 75, 71, 0.28);
-        }
-
-        .record-btn:disabled {
-            cursor: wait;
-            opacity: 0.82;
-        }
-
-        .recording-stage {
-            min-height: 240px;
-            display: grid;
-            align-content: center;
-            gap: 26px;
-        }
-
-        .recording-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 14px;
-            color: #b9a27f;
-            font-size: 1.4rem;
-            letter-spacing: -0.03em;
-            justify-content: center;
-        }
-
-        .spinner {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 3px solid rgba(255, 255, 255, 0.08);
-            border-top-color: var(--accent-2);
-            animation: spin 0.9s linear infinite;
-        }
-
-        .live-wave-shell {
-            border-top: 1px solid var(--border-soft);
-            border-bottom: 1px solid var(--border-soft);
-            padding: 24px 0 18px;
-        }
-
-        .live-wave-meta {
-            display: flex;
-            justify-content: space-between;
-            color: var(--muted-2);
-            font-size: 0.95rem;
-            margin-bottom: 18px;
-        }
-
-        .live-wave {
-            height: 110px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
-        }
-
-        .live-bar {
-            flex: 1 1 0;
-            min-width: 4px;
-            height: 20px;
-            border-radius: 999px;
-            background: linear-gradient(180deg, #7a5710, #c88f18);
-            transform-origin: center;
-            animation: livePulse 1.2s ease-in-out infinite;
-            opacity: 0.92;
-        }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            gap: 24px;
-            align-items: center;
-            padding: 28px 30px;
-            border-bottom: 1px solid var(--border-soft);
-            color: var(--muted);
-            font-size: 0.98rem;
-        }
-
-        .report-header strong {
-            color: #b6b0b0;
-            font-weight: 600;
-        }
-
-        .header-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.98rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        .report-body {
-            padding: 24px 30px 30px;
-        }
-
-        .wave-wrap {
-            padding: 18px 0 28px;
-            border-bottom: 1px solid var(--border-soft);
-        }
-
-        .wave-meta {
-            display: flex;
-            justify-content: space-between;
-            color: var(--muted-2);
-            font-size: 0.95rem;
-            margin-bottom: 18px;
+        .waveform-container {
+            position: relative;
+            height: 80px;
+            margin-bottom: 16px;
         }
 
         .waveform {
-            height: 94px;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 4px;
-            margin-bottom: 18px;
+            gap: 2px;
         }
 
-        .bar {
-            flex: 1 1 0;
-            border-radius: 999px;
-            background: linear-gradient(180deg, rgba(255, 177, 26, 0.7), #ffab00);
-            opacity: 0.95;
-            min-width: 4px;
-            transform-origin: center;
-            animation: reportWavePulse 1.6s ease-in-out infinite;
+        .waveform-bar {
+            flex: 1;
+            background: #f59e0b;
+            border-radius: 2px;
+            opacity: 0.8;
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
-        .wave-info {
+        .waveform-bar:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scaleY(0.8); }
+            50% { opacity: 1; transform: scaleY(1); }
+        }
+
+        .waveform-labels {
             display: flex;
             justify-content: space-between;
-            gap: 18px;
-            color: #9d9d9d;
-            font-size: 0.95rem;
+            color: #525252;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 12px;
         }
 
-        .analysis-grid {
-            padding-top: 26px;
-            display: grid;
-            grid-template-columns: 200px minmax(0, 1fr);
-            gap: 34px;
+        .waveform-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #737373;
+            font-size: 12px;
         }
 
-        .gauge {
-            display: grid;
-            justify-items: center;
-            gap: 18px;
+        .meta-left {
+            color: #a3a3a3;
+        }
+
+        .meta-right {
+            color: #525252;
+        }
+
+        .result-section {
+            padding: 40px 32px;
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+        }
+
+        .confidence-gauge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
 
         .gauge-circle {
-            width: 164px;
-            height: 164px;
-            border-radius: 50%;
-            border: 12px solid var(--accent);
-            display: grid;
-            place-items: center;
+            width: 140px;
+            height: 140px;
+            position: relative;
         }
 
-        .gauge-value {
+        .gauge-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: #2a2a2a;
+            stroke-width: 8;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke: #ef4444;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 377;
+            stroke-dashoffset: 19;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .gauge-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
-            line-height: 1.05;
         }
 
-        .gauge-value strong {
-            display: block;
-            font-size: 3.1rem;
-            font-weight: 800;
-            letter-spacing: -0.05em;
+        .gauge-percentage {
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1;
         }
 
-        .gauge-value span {
-            color: var(--muted);
-            font-size: 0.98rem;
+        .gauge-label {
+            font-size: 11px;
+            color: #737373;
+            text-transform: lowercase;
+            margin-top: 4px;
         }
 
-        .gauge-note {
-            color: var(--muted-2);
+        .model-info {
             text-align: center;
-            font-size: 0.95rem;
+            font-size: 11px;
+            color: #525252;
+            line-height: 1.4;
         }
 
-        .risk-area {
-            display: grid;
-            gap: 18px;
-        }
-
-        .risk-line {
-            display: flex;
-            gap: 14px;
-            align-items: center;
-            flex-wrap: wrap;
+        .result-content {
+            flex: 1;
         }
 
         .risk-badge {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            min-width: 102px;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .disease-category {
+            color: #a3a3a3;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .main-finding {
+            font-size: 22px;
+            font-weight: 600;
+            color: #e5e5e5;
+            line-height: 1.4;
+            margin-bottom: 24px;
+        }
+
+        .disease-name {
+            color: #ef4444;
+            font-weight: 700;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .feature-box {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
             border-radius: 10px;
-            padding: 10px 16px;
-            color: var(--accent);
-            background: rgba(255, 75, 71, 0.12);
-            border: 1px solid rgba(255, 75, 71, 0.24);
-            font-weight: 700;
+            padding: 16px;
         }
 
-        .risk-label {
-            color: #b2b2b2;
-            font-size: 1.05rem;
+        .feature-label {
+            font-size: 12px;
+            color: #737373;
+            margin-bottom: 8px;
+            text-transform: lowercase;
         }
 
-        .risk-copy {
-            font-size: clamp(1.8rem, 3vw, 2.6rem);
-            line-height: 1.25;
-            font-weight: 700;
-            letter-spacing: -0.04em;
+        .feature-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
         }
 
-        .risk-copy .accent {
-            color: var(--accent);
+        .feature-value.danger {
+            color: #ef4444;
         }
 
-        .metrics {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 20px;
+        .similarity-bar {
+            margin-bottom: 24px;
         }
 
-        .metric {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.02));
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 18px 20px;
-            min-height: 122px;
-            display: grid;
-            align-content: space-between;
-        }
-
-        .metric span {
-            color: var(--muted);
-            font-size: 0.95rem;
-        }
-
-        .metric strong {
-            font-size: 1.1rem;
-        }
-
-        .metric strong.red {
-            color: var(--accent);
-        }
-
-        .progress-copy {
+        .similarity-label {
             display: flex;
-            justify-content: flex-end;
-            color: var(--muted);
+            justify-content: space-between;
+            font-size: 12px;
+            color: #737373;
+            margin-bottom: 8px;
         }
 
-        .progress {
-            height: 10px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.1);
+        .bar-container {
+            height: 6px;
+            background: #2a2a2a;
+            border-radius: 3px;
             overflow: hidden;
         }
 
-        .progress > span {
-            display: block;
-            width: 85%;
+        .bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ff514d 0%, #ff5d5a 75%, rgba(255, 93, 90, 0.4) 100%);
+            width: 85%;
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 3px;
+            position: relative;
         }
 
-        .warning {
+        .bar-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+        }
+
+        .warning-banner {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 10px;
+            padding: 16px 20px;
             display: flex;
-            gap: 16px;
+            gap: 12px;
             align-items: flex-start;
-            background: var(--warning-bg);
-            border: 1px solid var(--warning-border);
-            border-radius: 16px;
-            padding: 18px 20px;
-            color: #e5d7bf;
-            font-size: 0.98rem;
-            line-height: 1.5;
         }
 
-        .warning svg {
-            color: var(--accent-2);
-            flex: 0 0 auto;
+        .warning-icon {
+            width: 20px;
+            height: 20px;
+            color: #f59e0b;
+            flex-shrink: 0;
             margin-top: 2px;
         }
 
+        .warning-text {
+            font-size: 14px;
+            color: #d4d4d4;
+            line-height: 1.5;
+        }
+
+        .disclaimer {
+            padding: 20px 32px;
+            background: #0f0f0f;
+            border-top: 1px solid #2a2a2a;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .info-icon {
+            width: 16px;
+            height: 16px;
+            color: #525252;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .disclaimer-text {
+            font-size: 12px;
+            color: #525252;
+            line-height: 1.6;
+        }
+
+        .upload-section {
+            padding: 60px 32px;
+            text-align: center;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .upload-area {
+            border: 2px dashed #2a2a2a;
+            border-radius: 16px;
+            padding: 48px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            color: #525252;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: #a3a3a3;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 13px;
+            color: #525252;
+        }
+
+        .record-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .record-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .recording {
+            animation: recording-pulse 1.5s infinite;
+        }
+
+        @keyframes recording-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #737373;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #2a2a2a;
+            border-top-color: #f59e0b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
-        @keyframes livePulse {
-            0%, 100% {
-                transform: scaleY(0.3);
-                opacity: 0.5;
-            }
-            50% {
-                transform: scaleY(1);
-                opacity: 1;
-            }
+        .questionnaire-section {
+            padding: 32px;
         }
 
-        @keyframes reportWavePulse {
-            0%, 100% {
-                transform: scaleY(0.9);
-                opacity: 0.72;
-            }
-            50% {
-                transform: scaleY(1.08);
-                opacity: 1;
-            }
+        .questionnaire-header {
+            text-align: center;
+            margin-bottom: 32px;
         }
 
-        @media (max-width: 780px) {
-            body {
-                padding: 16px;
-            }
+        .questionnaire-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e5e5e5;
+            margin-bottom: 8px;
+        }
 
-            .panel,
-            .report-body {
-                padding: 24px;
-            }
+        .questionnaire-subtitle {
+            font-size: 14px;
+            color: #737373;
+        }
 
-            .report-header {
-                padding: 22px 24px;
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        .progress-bar {
+            height: 4px;
+            background: #2a2a2a;
+            border-radius: 2px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
 
-            .analysis-grid {
-                grid-template-columns: 1fr;
-            }
+        .progress-fill {
+            height: 100%;
+            background: #f59e0b;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
 
-            .metrics {
-                grid-template-columns: 1fr;
-            }
+        .questions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
-            .wave-info,
-            .wave-meta {
-                flex-direction: column;
-            }
+        .question-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+        }
 
-            .record-btn {
-                width: 100%;
-            }
+        .question-number {
+            font-size: 12px;
+            color: #737373;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 15px;
+            color: #e5e5e5;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .answer-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #2a2a2a;
+            background: #141414;
+            color: #a3a3a3;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .answer-btn:hover {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .answer-btn.selected {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .questionnaire-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #2a2a2a;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn.back {
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            color: #a3a3a3;
+        }
+
+        .nav-btn.back:hover {
+            border-color: #525252;
+            color: #e5e5e5;
+        }
+
+        .nav-btn.next {
+            background: #f59e0b;
+            border: none;
+            color: #000;
+        }
+
+        .nav-btn.next:hover {
+            background: #d97706;
+        }
+
+        .nav-btn.next:disabled {
+            background: #2a2a2a;
+            color: #525252;
+            cursor: not-allowed;
+        }
+
+        .skip-link {
+            font-size: 13px;
+            color: #525252;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .skip-link:hover {
+            color: #737373;
+        }
+
+        .preliminary-result {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .preliminary-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f59e0b;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preliminary-text {
+            font-size: 14px;
+            color: #d4d4d4;
+            line-height: 1.6;
+        }
+
+        .preliminary-condition {
+            font-weight: 700;
+            color: #f59e0b;
         }
     </style>
 </head>
 <body>
-    <main class="shell">
-        <div class="brand">
-            <img src="logo.png" alt="Project logo">
-            <div class="brand-copy">
-                <strong>Cough Detection</strong>
-                <span>10-second respiratory sample capture</span>
-            </div>
-        </div>
-
-        <section class="card" id="recorderCard">
-            <div class="panel record-stage" id="idleStage">
-                <div class="dropzone">
-                    <div>
-                        <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M12 15a4 4 0 0 0 4-4V7a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Z"></path>
-                            <path d="M19 11a7 7 0 0 1-14 0"></path>
-                            <path d="M12 18v3"></path>
-                            <path d="M8 21h8"></path>
-                        </svg>
-                        <h1 class="title">Tap to record cough sample</h1>
-                        <p class="subtitle">Hold 10 seconds for best results &bull; 44.1kHz sample rate</p>
-                    </div>
+    <div class="container">
+        <div class="analysis-card">
+            <!-- Health Questionnaire Section -->
+            <div id="questionnaireSection" class="questionnaire-section">
+                <div class="questionnaire-header">
+                    <div class="questionnaire-title">Health Assessment</div>
+                    <div class="questionnaire-subtitle">Answer these questions to help assess your respiratory health</div>
                 </div>
-                <button class="record-btn" id="recordBtn" type="button">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 15a4 4 0 0 0 4-4V7a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Z"></path>
-                        <path d="M19 11a7 7 0 0 1-14 0"></path>
-                        <path d="M12 18v3"></path>
-                        <path d="M8 21h8"></path>
+
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+
+                <div class="questions-container" id="questionsContainer">
+                    <!-- Questions will be rendered by JS -->
+                </div>
+
+                <div id="preliminaryResult" class="preliminary-result hidden">
+                    <div class="preliminary-title">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                        </svg>
+                        Preliminary Assessment
+                    </div>
+                    <div id="preliminaryText" class="preliminary-text"></div>
+                </div>
+
+                <div class="questionnaire-footer">
+                    <button id="backBtn" class="nav-btn back hidden" onclick="prevQuestion()">Back</button>
+                    <span id="skipLink" class="skip-link" onclick="skipQuestionnaire()">Skip questionnaire</span>
+                    <button id="nextBtn" class="nav-btn next" onclick="nextQuestion()" disabled>Next</button>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div id="uploadSection" class="upload-section">
+                <div class="upload-area" onclick="startRecording()">
+                    <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                     </svg>
-                    <span>Record Cough</span>
+                    <div class="upload-text">Tap to record cough sample</div>
+                    <div class="upload-hint">Hold 10 seconds for best results • 44.1kHz sample rate</div>
+                </div>
+                <button class="record-btn" onclick="startRecording()">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                    </svg>
+                    Record Cough
                 </button>
             </div>
 
-            <div class="panel recording-stage hidden" id="recordingStage">
-                <div class="live-wave-shell">
-                    <div class="live-wave-meta">
+            <!-- Recording Progress -->
+            <div id="recordingSection" class="upload-section hidden">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Recording... <span id="timer">10</span>s
+                </div>
+            </div>
+
+            <!-- Analysis Loading -->
+            <div id="analyzingSection" class="upload-section hidden">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Analyzing cough patterns...
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden">
+                <div class="card-header">
+                    <div class="header-left">
+                        <svg class="mic-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                        Cough Analysis Report
+                    </div>
+                    <div class="header-right">
+                        Worker #DT-2841 • Recorded <span id="timestamp">09:14 AM</span>
+                    </div>
+                </div>
+
+                <div class="waveform-section">
+                    <div class="waveform-labels">
                         <span>0s</span>
                         <span>10s</span>
                     </div>
-                    <div class="live-wave" id="liveWave"></div>
-                </div>
-                <div class="recording-status">
-                    <span class="spinner" aria-hidden="true"></span>
-                    <span>Recording...</span>
-                    <span id="countdown">10</span>
-                    <span>s</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="card hidden" id="reportCard">
-            <div class="report-header">
-                <div class="header-tag">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 15a4 4 0 0 0 4-4V7a4 4 0 1 0-8 0v4a4 4 0 0 0 4 4Z"></path>
-                        <path d="M19 11a7 7 0 0 1-14 0" fill="none" stroke="currentColor" stroke-width="2"></path>
-                    </svg>
-                    <strong>Cough Analysis Report</strong>
-                </div>
-                <div id="reportMeta">Worker #DT-2841 &bull; Recorded 03:14 PM</div>
-            </div>
-
-            <div class="report-body">
-                <div class="wave-wrap">
-                    <div class="wave-meta">
-                        <span>0s</span>
-                        <span>10s</span>
+                    <div class="waveform-container">
+                        <div class="waveform" id="waveform">
+                            <!-- Generated by JS -->
+                        </div>
                     </div>
-                    <div class="waveform" id="waveform"></div>
-                    <div class="wave-info">
-                        <span id="durationInfo">Duration: 10.0s &bull; 3 cough events &bull; 44.1kHz</span>
-                        <span>MFCC &bull; Spectral centroid &bull; Zero-crossing rate</span>
+                    <div class="waveform-meta">
+                        <span class="meta-left">Duration: 10.4s • 3 cough events • 44.1kHz</span>
+                        <span class="meta-right">MFCC • Spectral centroid • Zero-crossing rate</span>
                     </div>
                 </div>
 
-                <div class="analysis-grid">
-                    <div class="gauge">
+                <div class="result-section">
+                    <div class="confidence-gauge">
                         <div class="gauge-circle">
-                            <div class="gauge-value">
-                                <strong>95%</strong>
-                                <span>confidence</span>
+                            <svg class="gauge-svg" viewBox="0 0 120 120">
+                                <circle class="gauge-bg" cx="60" cy="60" r="52"/>
+                                <circle class="gauge-fill" cx="60" cy="60" r="52"/>
+                            </svg>
+                            <div class="gauge-content">
+                                <div class="gauge-percentage">95%</div>
+                                <div class="gauge-label">confidence</div>
                             </div>
                         </div>
-                        <div class="gauge-note">Model v2.3 &bull; 40 features</div>
+                        <div class="model-info">
+                            Model v2.3 • 40<br>features
+                        </div>
                     </div>
 
-                    <div class="risk-area">
-                        <div class="risk-line">
-                            <div class="risk-badge">High Risk</div>
-                            <div class="risk-label">Occupational lung disease</div>
+                    <div class="result-content">
+                        <div class="risk-badge">
+                            <span class="badge">High risk</span>
+                            <span class="disease-category">Occupational lung disease</span>
                         </div>
 
-                        <div class="risk-copy">
-                            There is a 95% chance you have
-                            <span class="accent">Occupational Asthma.</span>
+                        <div class="main-finding">
+                            There is a 95% chance you have <span class="disease-name">Occupational Asthma</span>.
                         </div>
 
-                        <div class="metrics">
-                            <div class="metric">
-                                <span>cough freq.</span>
-                                <strong>18.4/min</strong>
+                        <div class="feature-grid">
+                            <div class="feature-box">
+                                <div class="feature-label">Cough freq.</div>
+                                <div class="feature-value">18.4/min</div>
                             </div>
-                            <div class="metric">
-                                <span>wheeze detected</span>
-                                <strong class="red">Yes</strong>
+                            <div class="feature-box">
+                                <div class="feature-label">Wheeze detected</div>
+                                <div class="feature-value danger">Yes</div>
                             </div>
-                            <div class="metric">
-                                <span>expiratory phase</span>
-                                <strong>Prolonged</strong>
+                            <div class="feature-box">
+                                <div class="feature-label">Expiratory phase</div>
+                                <div class="feature-value">Prolonged</div>
                             </div>
                         </div>
 
-                        <div class="progress-copy">Similarity to training positives</div>
-                        <div class="progress"><span></span></div>
+                        <div class="similarity-bar">
+                            <div class="similarity-label">
+                                <span></span>
+                                <span>Similarity to training positives</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar-fill"></div>
+                            </div>
+                        </div>
 
-                        <div class="warning">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M12 3 1 21h22L12 3Zm1 14h-2v-2h2v2Zm0-4h-2V9h2v4Z"></path>
+                        <div class="warning-banner">
+                            <svg class="warning-icon" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
                             </svg>
-                            <div>Referral recommended before next shift. Share this report with your occupational health officer.</div>
+                            <div class="warning-text">
+                                Referral recommended before next shift. Share this report with your occupational health officer.
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="disclaimer">
+                    <svg class="info-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+                    <div class="disclaimer-text">
+                        <strong>Not a medical diagnosis.</strong> This model is a feature extractor — results are statistical signals only and must be reviewed by a qualified medical professional.
+                    </div>
+                </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
     <script>
-        const RECORDING_SECONDS = 10;
-        const recordBtn = document.getElementById("recordBtn");
-        const idleStage = document.getElementById("idleStage");
-        const recordingStage = document.getElementById("recordingStage");
-        const recorderCard = document.getElementById("recorderCard");
-        const reportCard = document.getElementById("reportCard");
-        const countdown = document.getElementById("countdown");
-        const waveform = document.getElementById("waveform");
-        const liveWave = document.getElementById("liveWave");
-        const reportMeta = document.getElementById("reportMeta");
-        const durationInfo = document.getElementById("durationInfo");
+        const questions = [
+            { id: 1, text: "Do you often have coughing that lasts more than 2 weeks?" },
+            { id: 2, text: "Do you experience shortness of breath while working?" },
+            { id: 3, text: "Do you feel chest tightness or wheezing during or after work?" },
+            { id: 4, text: "Do your symptoms improve when you are away from work (like weekends/holidays)?" },
+            { id: 5, text: "Do you work in dusty, smoky, or chemical-exposed environments?" },
+            { id: 6, text: "Do you use protective equipment (mask/respirator) regularly at work?" },
+            { id: 7, text: "Have you ever been diagnosed with asthma or any lung disease?" },
+            { id: 8, text: "Do you frequently feel tired or weak without clear reason?" },
+            { id: 9, text: "Have you had fever or night sweats recently?" },
+            { id: 10, text: "Have you noticed any unexplained weight loss?" },
+            { id: 11, text: "Do you cough up blood or thick mucus?" },
+            { id: 12, text: "Have you been in close contact with someone diagnosed with TB?" },
+            { id: 13, text: "Do you work in poorly ventilated or closed spaces?" },
+            { id: 14, text: "Do you smoke or are you exposed to secondhand smoke regularly?" },
+            { id: 15, text: "Have your breathing problems increased over time while working in this job?" }
+        ];
 
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let activeStream = null;
-        let audioContext = null;
-        let analyser = null;
-        let sourceNode = null;
-        let captureInterval = null;
-        let countdownInterval = null;
-        let stopTimeout = null;
-        let amplitudeSamples = [];
-        let recordingStartedAt = 0;
-        let isRecording = false;
+        let currentQuestion = 0;
+        let answers = {};
 
-        function setStage(stage) {
-            idleStage.classList.toggle("hidden", stage !== "idle");
-            recordingStage.classList.toggle("hidden", stage !== "recording");
-            reportCard.classList.toggle("hidden", stage !== "report");
-            recorderCard.classList.toggle("hidden", stage === "report");
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            
+            const question = questions[currentQuestion];
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `
+                <div class="question-number">Question ${question.id} of ${questions.length}</div>
+                <div class="question-text">${question.text}</div>
+                <div class="answer-buttons">
+                    <button class="answer-btn ${answers[question.id] === true ? 'selected' : ''}" onclick="selectAnswer(${question.id}, true)">Yes</button>
+                    <button class="answer-btn ${answers[question.id] === false ? 'selected' : ''}" onclick="selectAnswer(${question.id}, false)">No</button>
+                </div>
+            `;
+            container.appendChild(card);
+            
+            updateProgress();
+            updateNavButtons();
         }
 
-        function buildFallbackWaveform() {
-            return Array.from({ length: 72 }, (_, index) => {
-                const inFirstCluster = index >= 15 && index <= 27;
-                const inSecondCluster = index >= 34 && index <= 47;
-                const inThirdCluster = index >= 51 && index <= 63;
-                const inCluster = inFirstCluster || inSecondCluster || inThirdCluster;
-                const distanceFromLocalCenter = inFirstCluster
-                    ? Math.abs(index - 21)
-                    : inSecondCluster
-                        ? Math.abs(index - 40)
-                        : Math.abs(index - 57);
-
-                if (inCluster) {
-                    const peakShape = Math.max(0, 1 - distanceFromLocalCenter / 7);
-                    return 0.42 + peakShape * 0.52 + Math.random() * 0.08;
-                }
-
-                return 0.12 + Math.random() * 0.12;
-            });
+        function selectAnswer(questionId, value) {
+            answers[questionId] = value;
+            renderQuestions();
         }
 
-        function normalizeWaveform(samples) {
-            const targetLength = 72;
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
 
-            if (!samples.length) {
-                return buildFallbackWaveform();
+        function updateNavButtons() {
+            const backBtn = document.getElementById('backBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const skipLink = document.getElementById('skipLink');
+            
+            backBtn.classList.toggle('hidden', currentQuestion === 0);
+            skipLink.classList.toggle('hidden', currentQuestion > 0);
+            
+            nextBtn.textContent = currentQuestion === questions.length - 1 ? 'Continue to Cough Recording' : 'Next';
+            nextBtn.disabled = answers[questions[currentQuestion].id] === undefined;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestions();
+            } else {
+                finishQuestionnaire();
             }
+        }
 
-            const chunkSize = Math.max(1, Math.floor(samples.length / targetLength));
-            const normalized = [];
-
-            for (let index = 0; index < targetLength; index += 1) {
-                const start = index * chunkSize;
-                const chunk = samples.slice(start, start + chunkSize);
-                const average = chunk.length
-                    ? chunk.reduce((sum, value) => sum + value, 0) / chunk.length
-                    : 0;
-                normalized.push(average);
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestions();
             }
-
-            const max = Math.max(...normalized, 0.01);
-
-            return normalized.map((value, index) => {
-                const scaled = value / max;
-                const emphasis =
-                    (index >= 15 && index <= 27) ||
-                    (index >= 34 && index <= 47) ||
-                    (index >= 51 && index <= 63)
-                        ? 1.12
-                        : 0.82;
-                return Math.max(0.1, Math.min(1, scaled * emphasis));
-            });
         }
 
-        function renderLiveWave() {
-            liveWave.innerHTML = "";
-
-            Array.from({ length: 68 }, (_, index) => {
-                const bar = document.createElement("div");
-                const clusterBoost =
-                    (index > 14 && index < 24) ||
-                    (index > 31 && index < 41) ||
-                    (index > 48 && index < 58);
-                const duration = 0.9 + (index % 9) * 0.08;
-                const delay = (index % 12) * 0.07;
-                const height = clusterBoost ? 76 + (index % 5) * 6 : 28 + (index % 4) * 5;
-                const color = clusterBoost ? "#ffb000" : "#a97717";
-
-                bar.className = "live-bar";
-                bar.style.height = `${height}px`;
-                bar.style.animationDelay = `${delay}s`;
-                bar.style.animationDuration = `${duration}s`;
-                bar.style.background = `linear-gradient(180deg, ${color}, #ffab00)`;
-                liveWave.appendChild(bar);
-            });
+        function skipQuestionnaire() {
+            answers = {};
+            for (let q of questions) {
+                answers[q.id] = null;
+            }
+            finishQuestionnaire();
         }
 
-        function renderWaveform(samples) {
-            const values = normalizeWaveform(samples);
-            waveform.innerHTML = "";
+        function evaluateConditions() {
+            const yes = (ids) => ids.some(id => answers[id] === true);
+            const tbRisk = yes([1, 9, 10, 11, 12]);
+            const silicosisRisk = yes([2, 5, 13, 15]);
+            const bronchitisRisk = yes([1, 11, 14, 5]);
 
-            values.slice(0, 72).forEach((value, index) => {
-                const bar = document.createElement("div");
-                const strength = Math.max(0.18, Math.min(1, value));
-                const height = 14 + strength * 72;
-                const glow = 0.35 + strength * 0.65;
-                const inHighlightCluster =
-                    (index >= 15 && index <= 27) ||
-                    (index >= 34 && index <= 47) ||
-                    (index >= 51 && index <= 63);
-                const hue = inHighlightCluster ? "#ffb000" : "#9a6c15";
+            if (tbRisk) return { condition: "Tuberculosis", risk: "high", message: "Based on your responses, you may be at risk for Tuberculosis. Symptoms like chronic cough, fever, night sweats, weight loss, and potential TB exposure require immediate medical attention." };
+            if (silicosisRisk) return { condition: "Silicosis / Pneumoconiosis", risk: "medium", message: "Your symptoms suggest possible Silicosis or Pneumoconiosis, often caused by prolonged exposure to dust in mining, construction, or industrial settings." };
+            if (bronchitisRisk) return { condition: "Chronic Bronchitis", risk: "medium", message: "Your responses indicate patterns consistent with Chronic Bronchitis, commonly associated with smoking and workplace air pollutants." };
 
-                bar.className = "bar";
-                bar.style.height = `${height}px`;
-                bar.style.background = `linear-gradient(180deg, ${hue}, #ffab00)`;
-                bar.style.opacity = glow.toFixed(2);
-                bar.style.animationDelay = `${(index % 12) * 0.09}s`;
-                bar.style.animationDuration = `${1.35 + (strength * 0.55)}s`;
+            return null;
+        }
+
+        function finishQuestionnaire() {
+            document.getElementById('questionnaireSection').classList.add('hidden');
+            document.getElementById('uploadSection').classList.remove('hidden');
+            
+            const result = evaluateConditions();
+            if (result) {
+                document.getElementById('preliminaryResult').classList.remove('hidden');
+                document.getElementById('preliminaryText').innerHTML = result.message;
+            }
+        }
+
+        function startQuestionnaire() {
+            currentQuestion = 0;
+            answers = {};
+            document.getElementById('questionnaireSection').classList.remove('hidden');
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('preliminaryResult').classList.add('hidden');
+            renderQuestions();
+        }
+
+        function generateWaveform() {
+            const waveform = document.getElementById('waveform');
+            waveform.innerHTML = '';
+            const bars = 100;
+            for (let i = 0; i < bars; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'waveform-bar';
+                // Create cough pattern - higher amplitude in middle sections
+                let height;
+                if (i > 20 && i < 35) height = 60 + Math.random() * 40;
+                else if (i > 45 && i < 60) height = 50 + Math.random() * 40;
+                else if (i > 70 && i < 85) height = 40 + Math.random() * 30;
+                else height = 10 + Math.random() * 20;
+                
+                bar.style.height = height + '%';
+                bar.style.animationDelay = (i * 0.02) + 's';
                 waveform.appendChild(bar);
+            }
+        }
+
+        function startRecording() {
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('recordingSection').classList.remove('hidden');
+            
+            let timeLeft = 10;
+            const timer = document.getElementById('timer');
+            
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timer.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    showAnalyzing();
+                }
+            }, 1000);
+        }
+
+        function showAnalyzing() {
+            document.getElementById('recordingSection').classList.add('hidden');
+            document.getElementById('analyzingSection').classList.remove('hidden');
+            
+            setTimeout(() => {
+                showResults();
+            }, 2000);
+        }
+
+        function showResults() {
+            document.getElementById('analyzingSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.remove('hidden');
+            generateWaveform();
+            
+            // Update timestamp
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
             });
-        }
+            document.getElementById('timestamp').textContent = timeString;
 
-        function cleanupAudio() {
-            if (captureInterval) {
-                clearInterval(captureInterval);
-                captureInterval = null;
+            // Update results based on questionnaire assessment
+            const assessment = evaluateConditions();
+            if (assessment) {
+                document.querySelector('.disease-name').textContent = assessment.condition;
+                const badge = document.querySelector('.badge');
+                if (assessment.risk === 'high') {
+                    badge.textContent = 'High risk';
+                    badge.style.background = 'rgba(239, 68, 68, 0.15)';
+                    badge.style.color = '#ef4444';
+                    badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                } else {
+                    badge.textContent = 'Medium risk';
+                    badge.style.background = 'rgba(245, 158, 11, 0.15)';
+                    badge.style.color = '#f59e0b';
+                    badge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                }
+                document.querySelector('.main-finding').innerHTML = `Based on your health questionnaire and cough analysis, you may have <span class="disease-name">${assessment.condition}</span>.`;
+                document.querySelector('.warning-text').textContent = 'Please consult a healthcare professional for proper diagnosis and treatment.';
             }
 
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-                countdownInterval = null;
-            }
-
-            if (stopTimeout) {
-                clearTimeout(stopTimeout);
-                stopTimeout = null;
-            }
-
-            if (sourceNode) {
-                sourceNode.disconnect();
-                sourceNode = null;
-            }
-
-            if (audioContext) {
-                audioContext.close();
-                audioContext = null;
-            }
-
-            analyser = null;
-
-            if (activeStream) {
-                activeStream.getTracks().forEach((track) => track.stop());
-                activeStream = null;
+            // Show questionnaire restart option
+            const headerRight = document.querySelector('.header-right');
+            if (!document.getElementById('restartLink')) {
+                const restartLink = document.createElement('button');
+                restartLink.id = 'restartLink';
+                restartLink.textContent = 'Start New Assessment';
+                restartLink.style.cssText = 'background: none; border: none; color: #f59e0b; cursor: pointer; font-size: 13px; margin-left: 16px; text-decoration: underline;';
+                restartLink.onclick = startQuestionnaire;
+                headerRight.appendChild(restartLink);
             }
         }
 
-        async function startRecording() {
-            if (isRecording) {
-                return;
-            }
-
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert("Microphone recording is not supported in this browser.");
-                return;
-            }
-
-            try {
-                activeStream = await navigator.mediaDevices.getUserMedia({
-                    audio: {
-                        channelCount: 1,
-                        sampleRate: 44100,
-                        echoCancellation: true,
-                        noiseSuppression: true
-                    }
-                });
-
-                mediaRecorder = new MediaRecorder(activeStream);
-                audioChunks = [];
-                amplitudeSamples = [];
-                recordingStartedAt = Date.now();
-                isRecording = true;
-
-                mediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
-                        audioChunks.push(event.data);
-                    }
-                };
-
-                mediaRecorder.onstop = async () => {
-                    const elapsed = (Date.now() - recordingStartedAt) / 1000;
-                    const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || "audio/webm" });
-                    cleanupAudio();
-                    isRecording = false;
-                    await showAnalysis(audioBlob, elapsed);
-                };
-
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                sourceNode = audioContext.createMediaStreamSource(activeStream);
-                sourceNode.connect(analyser);
-
-                const data = new Uint8Array(analyser.frequencyBinCount);
-                captureInterval = setInterval(() => {
-                    if (!analyser) {
-                        return;
-                    }
-                    analyser.getByteTimeDomainData(data);
-                    let sum = 0;
-                    for (let i = 0; i < data.length; i += 1) {
-                        const normalized = (data[i] - 128) / 128;
-                        sum += normalized * normalized;
-                    }
-                    amplitudeSamples.push(Math.sqrt(sum / data.length) * 8);
-                }, 120);
-
-                let remaining = RECORDING_SECONDS;
-                countdown.textContent = String(remaining);
-                setStage("recording");
-
-                countdownInterval = setInterval(() => {
-                    remaining -= 1;
-                    countdown.textContent = String(Math.max(0, remaining));
-                }, 1000);
-
-                stopTimeout = setTimeout(() => {
-                    stopRecording();
-                }, RECORDING_SECONDS * 1000);
-
-                mediaRecorder.start();
-            } catch (error) {
-                isRecording = false;
-                cleanupAudio();
-                alert("Please allow microphone access to record a cough sample.");
-            }
-        }
-
-        function stopRecording() {
-            if (!isRecording || !mediaRecorder) {
-                return;
-            }
-
-            if (mediaRecorder.state !== "inactive") {
-                mediaRecorder.stop();
-            }
-        }
-
-        async function showAnalysis(audioBlob, elapsedSeconds) {
-            const coughEvents = Math.max(2, Math.min(5, Math.round((amplitudeSamples.filter((sample) => sample > 0.45).length || 6) / 6)));
-            const recordedAt = new Date();
-            const timeLabel = recordedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-            const waveformSamples = amplitudeSamples.length ? amplitudeSamples : buildFallbackWaveform();
-
-            renderWaveform(waveformSamples);
-            reportMeta.textContent = `Worker #DT-2841 - Recorded ${timeLabel}`;
-            durationInfo.textContent = `Duration: ${elapsedSeconds.toFixed(1)}s - ${coughEvents} cough events - 44.1kHz`;
-
-            setStage("report");
-            void audioBlob;
-        }
-
-        recordBtn.addEventListener("click", startRecording);
-        renderLiveWave();
-        renderWaveform(buildFallbackWaveform());
+        // Initialize questionnaire on load
+        window.addEventListener('load', () => {
+            startQuestionnaire();
+        });
     </script>
 </body>
 </html>
