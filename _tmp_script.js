@@ -378,18 +378,9 @@
         function startRecording() {
             document.getElementById('uploadSection').classList.add('hidden');
             document.getElementById('recordingSection').classList.remove('hidden');
-            
-            let timeLeft = 10;
-            const timer = document.getElementById('timer');
-            
-            const countdown = setInterval(() => {
-                timeLeft--;
-                timer.textContent = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    showAnalyzing();
-                }
-            }, 1000);
+
+            clearInterval(coughCountdown);
+            coughCountdown = runCountdown(document.getElementById('timer'), 10, showAnalyzing);
         }
 
         function showAnalyzing() {
@@ -456,15 +447,15 @@
 
         // AI Analysis Functions
         // Recording state variables
-        let workerMediaRecorder = null;
-        let worksiteMediaRecorder = null;
-        let workerChunks = [];
-        let worksiteChunks = [];
         let workerStream = null;
         let worksiteStream = null;
         let materialStream = null;
         let capturedMaterialData = null;
         let currentGPSLocation = null;
+        let materialCaptureInProgress = false;
+        let coughCountdown = null;
+        let workerCountdown = null;
+        let worksiteCountdown = null;
 
         // Worker Health Video Recording
         // State tracking
@@ -472,7 +463,75 @@
         let materialPhotoCaptured = false;
         let worksiteVideoRecorded = false;
 
+        function getCameraSvg() {
+            return \
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">' +
+                '<path d="M15 10V6a3 3 0 0 0-6 0v4"/>' +
+                '<rect x="6" y="10" width="12" height="10" rx="2"/>' +
+                '<path d="M18 13h2l2-2v8l-2-2h-2"/>' +
+                '</svg>';
+        }
+
+        function getPhotoSvg() {
+            return \
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">' +
+                '<path d="M4 8h3l2-2h6l2 2h3v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/>' +
+                '<circle cx="12" cy="13" r="3.5"/>' +
+                '</svg>';
+        }
+
+        function getVideoSvg() {
+            return \
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">' +
+                '<path d="M4 7h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4z"/>' +
+                '<path d="M16 11l4-3v10l-4-3"/>' +
+                '</svg>';
+        }
+
+        function runCountdown(displayEl, seconds, onComplete) {
+            let remaining = seconds;
+            displayEl.textContent = remaining;
+            const intervalId = setInterval(() => {
+                remaining -= 1;
+                displayEl.textContent = remaining;
+                if (remaining <= 0) {
+                    clearInterval(intervalId);
+                    onComplete();
+                }
+            }, 1000);
+            return intervalId;
+        }
+
+        function resetWorkerCard(recorded) {
+            const workerArea = document.querySelector('.ai-record-self-area');
+            workerArea.classList.remove('hidden');
+            workerArea.innerHTML = \
+                '<div class="ai-record-self-icon">' + getCameraSvg() + '</div>' +
+                '<div class="ai-record-self-text">' + (recorded ? 'Self Video Recorded' : 'Record Yourself (10 sec)') + '</div>' +
+                '<div class="ai-record-self-hint">' + (recorded ? 'Click to record again' : 'Show your face and upper body clearly') + '</div>';
+        }
+
+        function resetMaterialCard() {
+            const materialStart = document.getElementById('materialStartArea');
+            materialStart.classList.remove('hidden');
+            materialStart.innerHTML = \
+                '<div class="ai-photo-icon">' + getPhotoSvg() + '</div>' +
+                '<div class="ai-photo-text">Take Photo of Material</div>' +
+                '<div class="ai-photo-hint">Take clear picture of materials you\'re working with</div>';
+        }
+
+        function resetWorksiteCard(recorded) {
+            const worksiteArea = document.getElementById('worksiteStartArea');
+            worksiteArea.classList.remove('hidden');
+            worksiteArea.innerHTML = \
+                '<div class="ai-record-site-icon">' + getVideoSvg() + '</div>' +
+                '<div class="ai-record-site-text">' + (recorded ? 'Video Recorded' : 'Record Worksite Video') + '</div>' +
+                '<div class="ai-record-site-hint">' + (recorded ? 'Click to record again' : 'GPS location will be captured automatically') + '</div>';
+        }
+
         function startWorkerRecording() {
+            if (workerStream) return;
+
             navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                 .then(stream => {
                     workerStream = stream;
@@ -482,19 +541,8 @@
                     document.querySelector('.ai-record-self-area').classList.add('hidden');
                     document.getElementById('workerRecordingStatus').classList.remove('hidden');
 
-                    // Timer countdown
-                    let timeLeft = 10;
-                    const timerEl = document.getElementById('workerTimer');
-                    timerEl.textContent = timeLeft;
-                    
-                    const timerInterval = setInterval(() => {
-                        timeLeft--;
-                        timerEl.textContent = timeLeft;
-                        if (timeLeft <= 0) {
-                            clearInterval(timerInterval);
-                            stopWorkerRecording();
-                        }
-                    }, 1000);
+                    clearInterval(workerCountdown);
+                    workerCountdown = runCountdown(document.getElementById('workerTimer'), 10, stopWorkerRecording);
                 })
                 .catch(err => {
                     console.error('Camera error:', err);
@@ -503,24 +551,26 @@
         }
 
         function stopWorkerRecording() {
+            clearInterval(workerCountdown);
+            workerCountdown = null;
+
             if (workerStream) {
                 workerStream.getTracks().forEach(track => track.stop());
                 workerStream = null;
-                document.getElementById('workerVideoPreview').classList.add('hidden');
-                document.getElementById('workerRecordingStatus').classList.add('hidden');
-                document.querySelector('.ai-record-self-area').classList.remove('hidden');
-                document.querySelector('.ai-record-self-area').innerHTML = `
-                    <div class="ai-record-self-icon">✅</div>
-                    <div class="ai-record-self-text">Self Video Recorded</div>
-                    <div class="ai-record-self-hint">Click to record again</div>
-                `;
-                workerVideoRecorded = true;
-                document.getElementById('workerNextBtn').disabled = false;
             }
+
+            document.getElementById('workerVideoPreview').classList.add('hidden');
+            document.getElementById('workerRecordingStatus').classList.add('hidden');
+            resetWorkerCard(true);
+            workerVideoRecorded = true;
+            document.getElementById('workerNextBtn').disabled = false;
         }
 
         // Material Photo Capture
         function startMaterialCapture() {
+            if (materialCaptureInProgress || materialPhotoCaptured || materialStream) return;
+
+            materialCaptureInProgress = true;
             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
                 .then(stream => {
                     materialStream = stream;
@@ -528,19 +578,18 @@
                     video.srcObject = stream;
                     video.classList.remove('hidden');
                     document.getElementById('materialStartArea').classList.add('hidden');
-
-                    // Auto-capture after 3 seconds preview
-                    setTimeout(() => {
-                        captureMaterialPhoto();
-                    }, 3000);
+                    setTimeout(captureMaterialPhoto, 300);
                 })
                 .catch(err => {
+                    materialCaptureInProgress = false;
                     console.error('Camera error:', err);
                     alert('Camera access denied. Please allow camera access to capture photos.');
                 });
         }
 
         function captureMaterialPhoto() {
+            if (!materialStream || materialPhotoCaptured) return;
+
             const video = document.getElementById('materialVideoCapture');
             const canvas = document.getElementById('materialCanvas');
             canvas.width = video.videoWidth || 640;
@@ -548,12 +597,9 @@
             canvas.getContext('2d').drawImage(video, 0, 0);
             capturedMaterialData = canvas.toDataURL('image/jpeg');
 
-            // Stop camera
-            if (materialStream) {
-                materialStream.getTracks().forEach(track => track.stop());
-                materialStream = null;
-            }
-
+            materialStream.getTracks().forEach(track => track.stop());
+            materialStream = null;
+            materialCaptureInProgress = false;
             video.classList.add('hidden');
             document.getElementById('materialCaptured').classList.remove('hidden');
             materialPhotoCaptured = true;
@@ -561,16 +607,24 @@
         }
 
         function retakeMaterial() {
+            if (materialStream) {
+                materialStream.getTracks().forEach(track => track.stop());
+                materialStream = null;
+            }
+
+            materialCaptureInProgress = false;
             document.getElementById('materialCaptured').classList.add('hidden');
             document.getElementById('materialStartArea').classList.remove('hidden');
             capturedMaterialData = null;
             materialPhotoCaptured = false;
             document.getElementById('materialNextBtn').disabled = true;
+            resetMaterialCard();
         }
 
         // Worksite Video with GPS
         function startWorksiteRecording() {
-            // First get GPS location
+            if (worksiteStream) return;
+
             if (navigator.geolocation) {
                 document.getElementById('gpsStatus').classList.remove('hidden');
                 document.getElementById('gpsLocation').textContent = 'Getting GPS location...';
@@ -582,10 +636,8 @@
                             lon: position.coords.longitude,
                             accuracy: position.coords.accuracy
                         };
-                        document.getElementById('gpsLocation').textContent = 
-                            `📍 Location: ${currentGPSLocation.lat.toFixed(4)}, ${currentGPSLocation.lon.toFixed(4)}`;
-
-                        // Now start video recording
+                        document.getElementById('gpsLocation').textContent =
+                            'Location: ' + currentGPSLocation.lat.toFixed(4) + ', ' + currentGPSLocation.lon.toFixed(4);
                         startWorksiteVideoRecording();
                     },
                     (error) => {
@@ -613,10 +665,8 @@
                     document.getElementById('worksiteStartArea').classList.add('hidden');
                     document.getElementById('worksiteRecordingStatus').classList.remove('hidden');
 
-                    // Auto-stop after 10 seconds
-                    setTimeout(() => {
-                        stopWorksiteRecording();
-                    }, 10000);
+                    clearInterval(worksiteCountdown);
+                    worksiteCountdown = runCountdown(document.getElementById('worksiteTimer'), 10, stopWorksiteRecording);
                 })
                 .catch(err => {
                     console.error('Camera error:', err);
@@ -625,29 +675,25 @@
         }
 
         function stopWorksiteRecording() {
+            clearInterval(worksiteCountdown);
+            worksiteCountdown = null;
+
             if (worksiteStream) {
                 worksiteStream.getTracks().forEach(track => track.stop());
                 worksiteStream = null;
-                document.getElementById('worksiteVideoPreview').classList.add('hidden');
-                document.getElementById('worksiteRecordingStatus').classList.add('hidden');
-                document.getElementById('worksiteStartArea').classList.remove('hidden');
-                document.getElementById('worksiteStartArea').innerHTML = `
-                    <div class="ai-record-site-icon">✅</div>
-                    <div class="ai-record-site-text">Video Recorded</div>
-                    <div class="ai-record-site-hint">Click to record again</div>
-                `;
-                worksiteVideoRecorded = true;
-                document.getElementById('worksiteNextBtn').disabled = false;
             }
+
+            document.getElementById('worksiteVideoPreview').classList.add('hidden');
+            document.getElementById('worksiteRecordingStatus').classList.add('hidden');
+            resetWorksiteCard(true);
+            worksiteVideoRecorded = true;
+            document.getElementById('worksiteNextBtn').disabled = false;
         }
 
         function retakeWorksite() {
-            document.getElementById('worksiteStartArea').classList.remove('hidden');
-            document.getElementById('worksiteStartArea').innerHTML = `
-                <div class="ai-record-site-icon">🎥</div>
-                <div class="ai-record-site-text">Record Worksite Video</div>
-                <div class="ai-record-site-hint">GPS location will be captured automatically</div>
-            `;
+            clearInterval(worksiteCountdown);
+            worksiteCountdown = null;
+            resetWorksiteCard(false);
             worksiteVideoRecorded = false;
             currentGPSLocation = null;
             document.getElementById('worksiteNextBtn').disabled = true;
@@ -885,50 +931,25 @@
             });
         }
 
-        function goToAIAnalysis() {
+                function goToAIAnalysis() {
             // Reset states
             workerVideoRecorded = false;
             materialPhotoCaptured = false;
             worksiteVideoRecorded = false;
+            materialCaptureInProgress = false;
+            clearInterval(workerCountdown);
+            clearInterval(worksiteCountdown);
             document.getElementById('workerNextBtn').disabled = true;
             document.getElementById('materialNextBtn').disabled = true;
             document.getElementById('worksiteNextBtn').disabled = true;
-            
             // Reset UI elements
-            const workerArea = document.querySelector('.ai-record-self-area');
-            if (workerArea) {
-                workerArea.innerHTML = `
-                    <div class="ai-record-self-icon">📹</div>
-                    <div class="ai-record-self-text" data-i18n="recordYourself">Record Yourself (10 sec)</div>
-                    <div class="ai-record-self-hint" data-i18n="recordHint">Show your face and upper body clearly</div>
-                `;
-            }
-            
-            const materialStart = document.getElementById('materialStartArea');
-            if (materialStart) {
-                materialStart.innerHTML = `
-                    <div class="ai-photo-icon">📷</div>
-                    <div class="ai-photo-text" data-i18n="takePhoto">Take Photo of Material</div>
-                    <div class="ai-photo-hint" data-i18n="materialHint">Take clear picture of materials you're working with</div>
-                `;
-                materialStart.classList.remove('hidden');
-            }
-            
+            resetWorkerCard(false);
+            resetMaterialCard();
+            resetWorksiteCard(false);
             const materialCaptured = document.getElementById('materialCaptured');
             if (materialCaptured) materialCaptured.classList.add('hidden');
-            
-            const worksiteArea = document.getElementById('worksiteStartArea');
-            if (worksiteArea) {
-                worksiteArea.innerHTML = `
-                    <div class="ai-record-site-icon">🎥</div>
-                    <div class="ai-record-site-text" data-i18n="recordSite">Record Worksite Video</div>
-                    <div class="ai-record-site-hint" data-i18n="siteHint">GPS location will be captured automatically</div>
-                `;
-            }
-            
             const gpsStatus = document.getElementById('gpsStatus');
             if (gpsStatus) gpsStatus.classList.add('hidden');
-            
             document.getElementById('questionnaireSection').classList.add('hidden');
             document.getElementById('aiWorkerSection').classList.remove('hidden');
             document.getElementById('aiMaterialSection').classList.add('hidden');
