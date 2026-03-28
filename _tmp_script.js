@@ -325,7 +325,7 @@
 
         function finishQuestionnaire() {
             document.getElementById('questionnaireSection').classList.add('hidden');
-            goToAIAnalysis();
+            goToCoughRecording();
             
             const result = evaluateConditions();
             if (result) {
@@ -749,13 +749,10 @@
             updateAlert(overallRisk);
 
             // Update issues and precautions based on analysis
-            updateIssuesAndPrecautions(workEnv, materials, weather, worksiteType);
+            updateIssuesAndPrecautions(workEnv, detectedMaterials, weather, worksiteType);
 
             // Update PPE checklist
-            updatePPEChecklist(materials);
-
-            // Show results
-            document.getElementById('aiResults').classList.add('show');
+            updatePPEChecklist(detectedMaterials);
         }
 
         function updateRiskDisplay(type, score) {
@@ -938,6 +935,8 @@
             document.getElementById('aiWorksiteSection').classList.add('hidden');
             document.getElementById('aiResultsSection').classList.add('hidden');
             document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('recordingSection').classList.add('hidden');
+            document.getElementById('analyzingSection').classList.add('hidden');
             document.getElementById('resultsSection').classList.add('hidden');
         }
 
@@ -946,12 +945,35 @@
             document.getElementById('aiMaterialSection').classList.add('hidden');
             document.getElementById('aiWorksiteSection').classList.add('hidden');
             document.getElementById('aiResultsSection').classList.add('hidden');
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('recordingSection').classList.add('hidden');
+            document.getElementById('analyzingSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
             document.getElementById('questionnaireSection').classList.remove('hidden');
         }
 
         function goToCoughRecording() {
+            document.getElementById('questionnaireSection').classList.add('hidden');
+            document.getElementById('aiWorkerSection').classList.add('hidden');
+            document.getElementById('aiMaterialSection').classList.add('hidden');
+            document.getElementById('aiWorksiteSection').classList.add('hidden');
             document.getElementById('aiResultsSection').classList.add('hidden');
+            document.getElementById('recordingSection').classList.add('hidden');
+            document.getElementById('analyzingSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
             document.getElementById('uploadSection').classList.remove('hidden');
+        }
+
+        function goToCoughResults() {
+            document.getElementById('questionnaireSection').classList.add('hidden');
+            document.getElementById('aiWorkerSection').classList.add('hidden');
+            document.getElementById('aiMaterialSection').classList.add('hidden');
+            document.getElementById('aiWorksiteSection').classList.add('hidden');
+            document.getElementById('aiResultsSection').classList.add('hidden');
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('recordingSection').classList.add('hidden');
+            document.getElementById('analyzingSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.remove('hidden');
         }
 
         // Initialize questionnaire on load
