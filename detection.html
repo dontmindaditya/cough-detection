@@ -2088,28 +2088,28 @@
         let worksiteVideoRecorded = false;
 
         function getCameraSvg() {
-            return \
+            return (
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">' +
                 '<path d="M15 10V6a3 3 0 0 0-6 0v4"/>' +
                 '<rect x="6" y="10" width="12" height="10" rx="2"/>' +
                 '<path d="M18 13h2l2-2v8l-2-2h-2"/>' +
-                '</svg>';
+                '</svg>');
         }
 
         function getPhotoSvg() {
-            return \
+            return (
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">' +
                 '<path d="M4 8h3l2-2h6l2 2h3v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/>' +
                 '<circle cx="12" cy="13" r="3.5"/>' +
-                '</svg>';
+                '</svg>');
         }
 
         function getVideoSvg() {
-            return \
+            return (
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">' +
                 '<path d="M4 7h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4z"/>' +
                 '<path d="M16 11l4-3v10l-4-3"/>' +
-                '</svg>';
+                '</svg>');
         }
 
         function runCountdown(displayEl, seconds, onComplete) {
@@ -2129,7 +2129,7 @@
         function resetWorkerCard(recorded) {
             const workerArea = document.querySelector('.ai-record-self-area');
             workerArea.classList.remove('hidden');
-            workerArea.innerHTML = \
+            workerArea.innerHTML =
                 '<div class="ai-record-self-icon">' + getCameraSvg() + '</div>' +
                 '<div class="ai-record-self-text">' + (recorded ? 'Self Video Recorded' : 'Record Yourself (10 sec)') + '</div>' +
                 '<div class="ai-record-self-hint">' + (recorded ? 'Click to record again' : 'Show your face and upper body clearly') + '</div>';
@@ -2138,7 +2138,7 @@
         function resetMaterialCard() {
             const materialStart = document.getElementById('materialStartArea');
             materialStart.classList.remove('hidden');
-            materialStart.innerHTML = \
+            materialStart.innerHTML =
                 '<div class="ai-photo-icon">' + getPhotoSvg() + '</div>' +
                 '<div class="ai-photo-text">Take Photo of Material</div>' +
                 '<div class="ai-photo-hint">Take clear picture of materials you\'re working with</div>';
@@ -2147,7 +2147,7 @@
         function resetWorksiteCard(recorded) {
             const worksiteArea = document.getElementById('worksiteStartArea');
             worksiteArea.classList.remove('hidden');
-            worksiteArea.innerHTML = \
+            worksiteArea.innerHTML =
                 '<div class="ai-record-site-icon">' + getVideoSvg() + '</div>' +
                 '<div class="ai-record-site-text">' + (recorded ? 'Video Recorded' : 'Record Worksite Video') + '</div>' +
                 '<div class="ai-record-site-hint">' + (recorded ? 'Click to record again' : 'GPS location will be captured automatically') + '</div>';
