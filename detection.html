@@ -772,6 +772,111 @@
             margin-top: 4px;
         }
 
+        .ai-record-self-area, .ai-take-photo-area, .ai-record-site-area {
+            border: 2px dashed #2a2a2a;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ai-record-self-area:hover, .ai-take-photo-area:hover, .ai-record-site-area:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .ai-record-self-icon, .ai-photo-icon, .ai-record-site-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .ai-record-self-text, .ai-photo-text, .ai-record-site-text {
+            font-size: 14px;
+            color: #e5e5e5;
+            margin-bottom: 6px;
+        }
+
+        .ai-record-self-hint, .ai-photo-hint, .ai-record-site-hint {
+            font-size: 11px;
+            color: #737373;
+        }
+
+        .ai-video-preview {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 12px;
+            background: #0a0a0a;
+        }
+
+        .ai-recording-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            color: #ef4444;
+            font-size: 13px;
+        }
+
+        .recording-dot {
+            width: 10px;
+            height: 10px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: recording-blink 1s infinite;
+        }
+
+        @keyframes recording-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .ai-gps-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 6px;
+            color: #22c55e;
+            font-size: 12px;
+        }
+
+        .ai-captured-preview {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+        }
+
+        .ai-captured-text {
+            font-size: 13px;
+            color: #22c55e;
+        }
+
+        .ai-retake-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid #525252;
+            color: #a3a3a3;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .ai-retake-btn:hover {
+            border-color: #737373;
+            color: #e5e5e5;
+        }
+
         .ai-run-btn {
             width: 100%;
             padding: 14px;
@@ -1045,6 +1150,7 @@
                 </div>
 
                 <div class="ai-grid">
+                    <!-- Worker Health Analysis - Record Self -->
                     <div class="ai-card">
                         <div class="ai-card-title">
                             <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
@@ -1053,12 +1159,57 @@
                             </svg>
                             <span data-i18n="workerHealth">Worker Health Analysis</span>
                         </div>
-                        <div class="ai-upload-area" onclick="document.getElementById('workerVideoInput').click()">
-                            <div class="ai-upload-text" data-i18n="uploadVideo">Upload 10sec Video</div>
-                            <div class="ai-upload-hint" data-i18n="videoHint">MP4, MOV • Max 50MB</div>
-                            <input type="file" id="workerVideoInput" accept="video/*" style="display:none" onchange="handleWorkerVideo(this)">
+                        <div class="ai-record-self-area" onclick="startWorkerRecording()">
+                            <div class="ai-record-self-icon">📹</div>
+                            <div class="ai-record-self-text" data-i18n="recordYourself">Record Yourself (10 sec)</div>
+                            <div class="ai-record-self-hint" data-i18n="recordHint">Show your face and upper body clearly</div>
                         </div>
-                        <div id="workerVideoName" class="ai-upload-hint" style="margin-top: 8px; text-align: center;"></div>
+                        <video id="workerVideoPreview" class="ai-video-preview hidden" autoplay muted></video>
+                        <div id="workerRecordingStatus" class="ai-recording-status hidden">
+                            <span class="recording-dot"></span>
+                            <span data-i18n="recordingInProgress">Recording...</span>
+                        </div>
+                        <video id="workerVideoRecorder" class="hidden" autoplay muted></video>
+                    </div>
+
+                    <!-- Material Analysis - Take Photo -->
+                    <div class="ai-card">
+                        <div class="ai-card-title">
+                            <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-7-2h2v-4h4v-2h-4V7h-2v4H7v2h4z"/>
+                            </svg>
+                            <span data-i18n="materials">Material Analysis</span>
+                        </div>
+                        <div class="ai-take-photo-area" onclick="startMaterialCapture()">
+                            <div class="ai-photo-icon">📷</div>
+                            <div class="ai-photo-text" data-i18n="takePhoto">Take Photo of Material</div>
+                            <div class="ai-photo-hint" data-i18n="materialHint">Take clear picture of materials you're working with</div>
+                        </div>
+                        <video id="materialVideoCapture" class="ai-video-preview hidden" autoplay muted></video>
+                        <canvas id="materialCanvas" class="hidden"></canvas>
+                        <div id="materialCaptured" class="ai-captured-preview hidden">
+                            <div class="ai-captured-text" data-i18n="photoCaptured">Photo Captured</div>
+                            <button class="ai-retake-btn" onclick="retakeMaterial()" data-i18n="retake">Retake</button>
+                        </div>
+                    </div>
+
+                    <!-- Location & Environment -->
+                    <div class="ai-card">
+                        <div class="ai-card-title">
+                            <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                            </svg>
+                            <span data-i18n="location">Location & Environment</span>
+                        </div>
+                        <div class="ai-input-group">
+                            <label class="ai-label" data-i18n="weather">Weather Condition</label>
+                            <select class="ai-select" id="weatherCondition">
+                                <option value="normal" data-i18n="normal">Normal</option>
+                                <option value="rainy" data-i18n="rainy">Rainy</option>
+                                <option value="hot" data-i18n="hot">Hot</option>
+                                <option value="humid" data-i18n="humid">Humid</option>
+                            </select>
+                        </div>
                         <div class="ai-input-group" style="margin-top: 12px;">
                             <label class="ai-label" data-i18n="workEnvironment">Work Environment</label>
                             <select class="ai-select" id="workEnvironment">
@@ -1070,51 +1221,7 @@
                         </div>
                     </div>
 
-                    <div class="ai-card">
-                        <div class="ai-card-title">
-                            <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-7-2h2v-4h4v-2h-4V7h-2v4H7v2h4z"/>
-                            </svg>
-                            <span data-i18n="materials">Material Analysis</span>
-                        </div>
-                        <div class="ai-input-group">
-                            <label class="ai-label" data-i18n="selectMaterials">Select Materials Used</label>
-                            <select class="ai-select" id="materialsSelect" multiple style="height: 120px;">
-                                <option value="cement" data-i18n="cement">Cement</option>
-                                <option value="sand" data-i18n="sand">Sand</option>
-                                <option value="putty" data-i18n="putty">Putty</option>
-                                <option value="chemicals" data-i18n="chemicals">Chemicals</option>
-                                <option value="water" data-i18n="water">Water</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="ai-card">
-                        <div class="ai-card-title">
-                            <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                            </svg>
-                            <span data-i18n="location">Location & Environment</span>
-                        </div>
-                        <div class="ai-input-group">
-                            <label class="ai-label" data-i18n="latitude">Latitude</label>
-                            <input type="text" class="ai-input" id="latitude" placeholder="23.2599" data-i18n-placeholder="latPlaceholder">
-                        </div>
-                        <div class="ai-input-group">
-                            <label class="ai-label" data-i18n="longitude">Longitude</label>
-                            <input type="text" class="ai-input" id="longitude" placeholder="77.4126" data-i18n-placeholder="longPlaceholder">
-                        </div>
-                        <div class="ai-input-group">
-                            <label class="ai-label" data-i18n="weather">Weather Condition</label>
-                            <select class="ai-select" id="weatherCondition">
-                                <option value="normal" data-i18n="normal">Normal</option>
-                                <option value="rainy" data-i18n="rainy">Rainy</option>
-                                <option value="hot" data-i18n="hot">Hot</option>
-                                <option value="humid" data-i18n="humid">Humid</option>
-                            </select>
-                        </div>
-                    </div>
-
+                    <!-- Worksite Video - Record with GPS -->
                     <div class="ai-card">
                         <div class="ai-card-title">
                             <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
@@ -1122,12 +1229,24 @@
                             </svg>
                             <span data-i18n="worksiteVideo">Worksite Video Analysis</span>
                         </div>
-                        <div class="ai-upload-area" onclick="document.getElementById('worksiteVideoInput').click()">
-                            <div class="ai-upload-text" data-i18n="uploadWorksite">Upload Worksite Video</div>
-                            <div class="ai-upload-hint" data-i18n="worksiteHint">MP4, MOV • Max 100MB</div>
-                            <input type="file" id="worksiteVideoInput" accept="video/*" style="display:none" onchange="handleWorksiteVideo(this)">
+                        <div class="ai-record-site-area" onclick="startWorksiteRecording()">
+                            <div class="ai-record-site-icon">🎥</div>
+                            <div class="ai-record-site-text" data-i18n="recordSite">Record Worksite Video</div>
+                            <div class="ai-record-site-hint" data-i18n="siteHint">GPS location will be captured automatically</div>
                         </div>
-                        <div id="worksiteVideoName" class="ai-upload-hint" style="margin-top: 8px; text-align: center;"></div>
+                        <div id="gpsStatus" class="ai-gps-status hidden">
+                            <span class="gps-icon">📍</span>
+                            <span id="gpsLocation" data-i18n="gettingLocation">Getting GPS location...</span>
+                        </div>
+                        <video id="worksiteVideoPreview" class="ai-video-preview hidden" autoplay muted></video>
+                        <div id="worksiteRecordingStatus" class="ai-recording-status hidden">
+                            <span class="recording-dot"></span>
+                            <span data-i18n="recordingInProgress">Recording...</span>
+                        </div>
+                        <div id="worksiteCaptured" class="ai-captured-preview hidden">
+                            <div class="ai-captured-text" data-i18n="videoCaptured">Video Captured</div>
+                            <button class="ai-retake-btn" onclick="retakeWorksite()" data-i18n="retake">Retake</button>
+                        </div>
                         <div class="ai-input-group" style="margin-top: 12px;">
                             <label class="ai-label" data-i18n="worksiteType">Worksite Type</label>
                             <select class="ai-select" id="worksiteType">
@@ -1144,7 +1263,7 @@
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
                     </svg>
-                    <span data-i18n="analyzeBtn">Run AI Analysis</span>
+                    <span data-i18n="getResults">Get Analysis Results</span>
                 </button>
 
                 <div id="aiResults" class="ai-results">
@@ -1196,21 +1315,12 @@
 
                     <div class="issues-list">
                         <div class="issues-title" data-i18n="detectedIssues">⚠️ Detected Issues</div>
-                        <div id="issuesList">
-                            <div class="issue-item" data-i18n="issue1">Possible skin irritation due to cement exposure</div>
-                            <div class="issue-item" data-i18n="issue2">Dust inhalation risk from sand work</div>
-                            <div class="issue-item" data-i18n="issue3">High temperature may cause dehydration</div>
-                        </div>
+                        <div id="issuesList"></div>
                     </div>
 
                     <div class="precautions-list">
                         <div class="precautions-title" data-i18n="recommendedPrecautions">🛡️ Recommended Precautions</div>
-                        <div id="precautionsList">
-                            <div class="precaution-item" data-i18n="prec1">Wear N95 mask at all times</div>
-                            <div class="precaution-item" data-i18n="prec2">Use protective gloves when handling cement</div>
-                            <div class="precaution-item" data-i18n="prec3">Take 10-minute breaks every hour</div>
-                            <div class="precaution-item" data-i18n="prec4">Stay hydrated - drink water every 20 minutes</div>
-                        </div>
+                        <div id="precautionsList"></div>
                     </div>
 
                     <div class="checklist-grid">
@@ -1428,25 +1538,22 @@
                   materials: "Material Analysis",
                   location: "Location & Environment",
                   worksiteVideo: "Worksite Video Analysis",
-                  uploadVideo: "Upload 10sec Video",
-                  videoHint: "MP4, MOV • Max 50MB",
-                  uploadWorksite: "Upload Worksite Video",
-                  worksiteHint: "MP4, MOV • Max 100MB",
+                  recordYourself: "Record Yourself (10 sec)",
+                  recordHint: "Show your face and upper body clearly",
+                  takePhoto: "Take Photo of Material",
+                  materialHint: "Take clear picture of materials you're working with",
+                  recordSite: "Record Worksite Video",
+                  siteHint: "GPS location will be captured automatically",
+                  recordingInProgress: "Recording...",
+                  gettingLocation: "Getting GPS location...",
+                  photoCaptured: "Photo Captured",
+                  videoCaptured: "Video Captured",
+                  retake: "Retake",
                   workEnvironment: "Work Environment",
                   dusty: "Dusty (Cement/Construction)",
                   mining: "Mining",
                   indoor: "Indoor/Factory",
                   outdoor: "Outdoor/Open Air",
-                  selectMaterials: "Select Materials Used",
-                  cement: "Cement",
-                  sand: "Sand",
-                  putty: "Putty",
-                  chemicals: "Chemicals",
-                  water: "Water",
-                  latitude: "Latitude",
-                  longitude: "Longitude",
-                  latPlaceholder: "23.2599",
-                  longPlaceholder: "77.4126",
                   weather: "Weather Condition",
                   normal: "Normal",
                   rainy: "Rainy",
@@ -1457,7 +1564,7 @@
                   miningSite: "Mining",
                   factory: "Factory",
                   general: "General Industrial",
-                  analyzeBtn: "Run AI Analysis",
+                  getResults: "Get Analysis Results",
                   confidenceScore: "Confidence: 78% (Mock Analysis)",
                   riskSummary: "Risk Summary",
                   healthRisk: "Health Risk",
@@ -1528,25 +1635,22 @@
                   materials: "सामग्री विश्लेषण",
                   location: "स्थान और वातावरण",
                   worksiteVideo: "कार्यस्थल वीडियो विश्लेषण",
-                  uploadVideo: "10 सेकंड वीडियो अपलोड करें",
-                  videoHint: "MP4, MOV • अधिकतम 50MB",
-                  uploadWorksite: "कार्यस्थल वीडियो अपलोड करें",
-                  worksiteHint: "MP4, MOV • अधिकतम 100MB",
+                  recordYourself: "अपने आप को रिकॉर्ड करें (10 सेकंड)",
+                  recordHint: "अपने चेहरे और ऊपरी शरीर को स्पष्ट दिखाएं",
+                  takePhoto: "सामग्री की फोटो लें",
+                  materialHint: "जिन सामग्रियों के साथ आप काम कर रहे हैं उनकी स्पष्ट तस्वीर लें",
+                  recordSite: "कार्यस्थल वीडियो रिकॉर्ड करें",
+                  siteHint: "GPS स्थान स्वचालित रूप से कैप्चर किया जाएगा",
+                  recordingInProgress: "रिकॉर्डिंग...",
+                  gettingLocation: "GPS स्थान प्राप्त कर रहे हैं...",
+                  photoCaptured: "फोटो कैप्चर किया गया",
+                  videoCaptured: "वीडियो कैप्चर किया गया",
+                  retake: "फिर से लें",
                   workEnvironment: "कार्य वातावरण",
                   dusty: "धूल भरा (सीमेंट/निर्माण)",
                   mining: "खनन",
                   indoor: "अंदर/कारखाना",
                   outdoor: "बाहर/खुली हवा",
-                  selectMaterials: "उपयोग की जाने वाली सामग्री चुनें",
-                  cement: "सीमेंट",
-                  sand: "रेत",
-                  putty: "पुताई",
-                  chemicals: "रसायन",
-                  water: "पानी",
-                  latitude: "अक्षांश",
-                  longitude: "देशांतर",
-                  latPlaceholder: "23.2599",
-                  longPlaceholder: "77.4126",
                   weather: "मौसम की स्थिति",
                   normal: "सामान्य",
                   rainy: "बारिश",
@@ -1557,7 +1661,7 @@
                   miningSite: "खनन",
                   factory: "कारखाना",
                   general: "सामान्य औद्योगिक",
-                  analyzeBtn: "AI विश्लेषण चलाएं",
+                  getResults: "विश्लेषण परिणाम प्राप्त करें",
                   confidenceScore: "विश्वास: 78% (मॉक विश्लेषण)",
                   riskSummary: "जोखिम सारांश",
                   healthRisk: "स्वास्थ्य जोखिम",
@@ -1834,16 +1938,169 @@
         }
 
         // AI Analysis Functions
-        function handleWorkerVideo(input) {
-            if (input.files && input.files[0]) {
-                document.getElementById('workerVideoName').textContent = input.files[0].name;
+        // Recording state variables
+        let workerMediaRecorder = null;
+        let worksiteMediaRecorder = null;
+        let workerChunks = [];
+        let worksiteChunks = [];
+        let workerStream = null;
+        let worksiteStream = null;
+        let materialStream = null;
+        let capturedMaterialData = null;
+        let currentGPSLocation = null;
+
+        // Worker Health Video Recording
+        function startWorkerRecording() {
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                .then(stream => {
+                    workerStream = stream;
+                    const video = document.getElementById('workerVideoPreview');
+                    video.srcObject = stream;
+                    video.classList.remove('hidden');
+                    document.querySelector('.ai-record-self-area').classList.add('hidden');
+                    document.getElementById('workerRecordingStatus').classList.remove('hidden');
+
+                    // Auto-stop after 10 seconds
+                    setTimeout(() => {
+                        stopWorkerRecording();
+                    }, 10000);
+                })
+                .catch(err => {
+                    console.error('Camera error:', err);
+                    alert('Camera access denied. Please allow camera access to record.');
+                });
+        }
+
+        function stopWorkerRecording() {
+            if (workerStream) {
+                workerStream.getTracks().forEach(track => track.stop());
+                workerStream = null;
+                document.getElementById('workerVideoPreview').classList.add('hidden');
+                document.getElementById('workerRecordingStatus').classList.add('hidden');
+                document.querySelector('.ai-record-self-area').classList.remove('hidden');
+                document.querySelector('.ai-record-self-area').innerHTML = `
+                    <div class="ai-record-self-icon">✅</div>
+                    <div class="ai-record-self-text">Self Video Recorded</div>
+                    <div class="ai-record-self-hint">Click to record again</div>
+                `;
             }
         }
 
-        function handleWorksiteVideo(input) {
-            if (input.files && input.files[0]) {
-                document.getElementById('worksiteVideoName').textContent = input.files[0].name;
+        // Material Photo Capture
+        function startMaterialCapture() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+                .then(stream => {
+                    materialStream = stream;
+                    const video = document.getElementById('materialVideoCapture');
+                    video.srcObject = stream;
+                    video.classList.remove('hidden');
+                    document.querySelector('.ai-take-photo-area').classList.add('hidden');
+
+                    // Auto-capture after showing preview
+                    setTimeout(() => {
+                        captureMaterialPhoto();
+                    }, 3000);
+                })
+                .catch(err => {
+                    console.error('Camera error:', err);
+                    alert('Camera access denied. Please allow camera access to capture photos.');
+                });
+        }
+
+        function captureMaterialPhoto() {
+            const video = document.getElementById('materialVideoCapture');
+            const canvas = document.getElementById('materialCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            capturedMaterialData = canvas.toDataURL('image/jpeg');
+
+            // Stop camera
+            if (materialStream) {
+                materialStream.getTracks().forEach(track => track.stop());
+                materialStream = null;
             }
+
+            video.classList.add('hidden');
+            document.getElementById('materialCaptured').classList.remove('hidden');
+        }
+
+        function retakeMaterial() {
+            document.getElementById('materialCaptured').classList.add('hidden');
+            document.querySelector('.ai-take-photo-area').classList.remove('hidden');
+            capturedMaterialData = null;
+        }
+
+        // Worksite Video with GPS
+        function startWorksiteRecording() {
+            // First get GPS location
+            if (navigator.geolocation) {
+                document.getElementById('gpsStatus').classList.remove('hidden');
+                document.getElementById('gpsLocation').textContent = 'Getting GPS location...';
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentGPSLocation = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        };
+                        document.getElementById('gpsLocation').textContent = 
+                            `📍 Location: ${currentGPSLocation.lat.toFixed(4)}, ${currentGPSLocation.lon.toFixed(4)}`;
+
+                        // Now start video recording
+                        startWorksiteVideoRecording();
+                    },
+                    (error) => {
+                        console.error('GPS error:', error);
+                        document.getElementById('gpsLocation').textContent = 'GPS unavailable, recording without location';
+                        currentGPSLocation = null;
+                        startWorksiteVideoRecording();
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                document.getElementById('gpsLocation').textContent = 'GPS not supported';
+                currentGPSLocation = null;
+                startWorksiteVideoRecording();
+            }
+        }
+
+        function startWorksiteVideoRecording() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+                .then(stream => {
+                    worksiteStream = stream;
+                    const video = document.getElementById('worksiteVideoPreview');
+                    video.srcObject = stream;
+                    video.classList.remove('hidden');
+                    document.querySelector('.ai-record-site-area').classList.add('hidden');
+                    document.getElementById('worksiteRecordingStatus').classList.remove('hidden');
+
+                    // Auto-stop after 10 seconds
+                    setTimeout(() => {
+                        stopWorksiteRecording();
+                    }, 10000);
+                })
+                .catch(err => {
+                    console.error('Camera error:', err);
+                    alert('Camera access denied. Please allow camera access to record.');
+                });
+        }
+
+        function stopWorksiteRecording() {
+            if (worksiteStream) {
+                worksiteStream.getTracks().forEach(track => track.stop());
+                worksiteStream = null;
+                document.getElementById('worksiteVideoPreview').classList.add('hidden');
+                document.getElementById('worksiteRecordingStatus').classList.add('hidden');
+                document.getElementById('worksiteCaptured').classList.remove('hidden');
+            }
+        }
+
+        function retakeWorksite() {
+            document.getElementById('worksiteCaptured').classList.add('hidden');
+            document.querySelector('.ai-record-site-area').classList.remove('hidden');
+            currentGPSLocation = null;
         }
 
         function getRiskLevel(score) {
@@ -1863,13 +2120,20 @@
             if (workEnv === 'mining') { healthRisk += 2; envRisk += 2; }
             if (workEnv === 'indoor') envRisk += 1;
 
-            // Analyze materials
-            const materials = Array.from(document.getElementById('materialsSelect').selectedOptions).map(o => o.value);
-            if (materials.includes('cement')) materialRisk += 2;
-            if (materials.includes('sand')) materialRisk += 1;
-            if (materials.includes('putty')) materialRisk += 1;
-            if (materials.includes('chemicals')) materialRisk += 3;
-            if (materials.length > 2) materialRisk += 1;
+            // Analyze materials - mock based on captured photo
+            let detectedMaterials = [];
+            if (capturedMaterialData) {
+                // Mock: randomly detect some materials (in real app, use AI model)
+                const materialOptions = ['cement', 'sand', 'putty', 'chemicals'];
+                const randomMaterials = materialOptions.filter(() => Math.random() > 0.6);
+                detectedMaterials = randomMaterials.length > 0 ? randomMaterials : ['cement'];
+            }
+
+            if (detectedMaterials.includes('cement')) materialRisk += 2;
+            if (detectedMaterials.includes('sand')) materialRisk += 1;
+            if (detectedMaterials.includes('putty')) materialRisk += 1;
+            if (detectedMaterials.includes('chemicals')) materialRisk += 3;
+            if (detectedMaterials.length > 2) materialRisk += 1;
 
             // Analyze worksite type
             const worksiteType = document.getElementById('worksiteType').value;
@@ -1882,8 +2146,14 @@
             if (weather === 'hot') healthRisk += 1;
             if (weather === 'humid') healthRisk += 1;
 
-            // Analyze location (mock logic)
-            const lat = document.getElementById('latitude').value;
+            // Analyze location from GPS
+            if (currentGPSLocation) {
+                // Mock: Industrial/mining areas have higher risk
+                if (currentGPSLocation.lat > 20 && currentGPSLocation.lat < 30 && 
+                    currentGPSLocation.lon > 70 && currentGPSLocation.lon < 90) {
+                    envRisk += 1;
+                }
+            }
             const lon = document.getElementById('longitude').value;
             if (lat && lon) {
                 // Mock: Assume industrial areas have higher risk
