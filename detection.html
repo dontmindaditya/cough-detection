@@ -656,12 +656,12 @@
 <body>
     <div class="container">
         <div class="analysis-card">
-            <!-- Health Questionnaire Section -->
-            <div id="questionnaireSection" class="questionnaire-section">
-                <div class="questionnaire-header">
-                    <div class="questionnaire-title">Health Assessment</div>
-                    <div class="questionnaire-subtitle">Answer these questions to help assess your respiratory health</div>
-                </div>
+             <!-- Health Questionnaire Section -->
+              <div id="questionnaireSection" class="questionnaire-section">
+                 <div class="questionnaire-header">
+                     <div class="questionnaire-title">Health Assessment</div>
+                     <div class="questionnaire-subtitle">Answer these questions to help assess your respiratory health</div>
+                 </div>
 
                 <div class="progress-bar">
                     <div id="progressFill" class="progress-fill" style="width: 0%"></div>
@@ -832,11 +832,104 @@
         </div>
     </div>
 
-    <script>
-        let currentLang = 'hi'; // Default to Hindi
-        
-        // Initialize questions array - will be updated when language changes
-        let questions = [];
+     <script>
+         let currentLang = 'hi'; // Default to Hindi
+         
+         const translations = {
+             en: {
+                 questionnaireTitle: "Health Assessment",
+                 questionnaireSubtitle: "Answer these questions to help assess your respiratory health",
+                 preliminaryTitle: "Preliminary Assessment",
+                 back: "Back",
+                 next: "Next",
+                 skip: "Skip questionnaire",
+                 continue: "Continue to Cough Recording",
+                 restartLink: "Start New Assessment",
+                 uploadText: "Tap to record cough sample",
+                 uploadHint: "Hold 10 seconds for best results • 44.1kHz sample rate",
+                 recordBtn: "Record Cough",
+                 recording: "Recording...",
+                 analyzing: "Analyzing cough patterns...",
+                 confidenceLabel: "confidence",
+                 riskBadge: "High risk",
+                 diseaseCategory: "Occupational lung disease",
+                 mainFindingPrefix: "Based on your health questionnaire and cough analysis, you may have ",
+                 mainFindingSuffix: ".",
+                 warningText: "Please consult a healthcare professional for proper diagnosis and treatment.",
+                 disclaimer: "<strong>Not a medical diagnosis.</strong> This model is a feature extractor — results are statistical signals only and must be reviewed by a qualified medical professional.",
+                 preliminaryMessage: "Based on your responses, you may be experiencing symptoms consistent with Occupational Asthma. We recommend consulting with a healthcare professional for proper evaluation.",
+                 featureLabels: ["Cough freq.", "Wheeze detected", "Expiratory phase"],
+                 similarityLabel: "Similarity to training positives",
+                 questionNumber: "Question",
+                 yes: "Yes",
+                 no: "No",
+                 questions: [
+                     "Do you often have coughing that lasts more than 2 weeks?",
+                     "Do you experience shortness of breath while working?",
+                     "Do you feel chest tightness or wheezing during or after work?",
+                     "Do your symptoms improve when you are away from work (like weekends/holidays)?",
+                     "Do you work in dusty, smoky, or chemical-exposed environments?",
+                     "Do you use protective equipment (mask/respirator) regularly at work?",
+                     "Have you ever been diagnosed with asthma or any lung disease?",
+                     "Do you frequently feel tired or weak without clear reason?",
+                     "Have you had fever or night sweats recently?",
+                     "Have you noticed any unexplained weight loss?",
+                     "Do you cough up blood or thick mucus?",
+                     "Have you been in close contact with someone diagnosed with TB?",
+                     "Do you work in poorly ventilated or closed spaces?",
+                     "Do you smoke or are you exposed to secondhand smoke regularly?",
+                     "Have your breathing problems increased over time while working in this job?"
+                 ]
+             },
+             hi: {
+                 questionnaireTitle: "स्वास्थ्य मूल्यांकन",
+                 questionnaireSubtitle: "अपनी श्वसन स्वास्थ्य का मूल्यांकन करने में मदद करने के लिए इन प्रश्नों के उत्तर दें",
+                 preliminaryTitle: "प्रारंभिक मूल्यांकन",
+                 back: "पीछे",
+                 next: "अगला",
+                 skip: "प्रश्नावली छोड़ें",
+                 continue: "खांसी रिकॉर्डिंग जारी रखें",
+                 restartLink: "नया मूल्यांकन शुरू करें",
+                 uploadText: "खांसी का नमूना रिकॉर्ड करने के लिए टैप करें",
+                 uploadHint: "सर्वोत्तम परिणाम के लिए 10 सेकंड तक रखें • 44.1kHz नमूना दर",
+                 recordBtn: "खांसी रिकॉर्ड करें",
+                 recording: "रिकॉर्डिंग...",
+                 analyzing: "खांसी पैटर्न का विश्लेषण कर रहे हैं...",
+                 confidenceLabel: "विश्वास",
+                 riskBadge: "उच्च जोखिम",
+                 diseaseCategory: "व्यावसायिक फेफड़ा रोग",
+                 mainFindingPrefix: "आपके स्वास्थ्य प्रश्नावली और खांसी विश्लेषण के आधार पर, आपको हो सकता है ",
+                 mainFindingSuffix: "।",
+                 warningText: "कृपया उचित निदान और उपचार के लिए एक स्वास्थ्य देखभाल पेशेवर से परामर्श करें।",
+                 disclaimer: "<strong>एक चिकित्सा निदान नहीं।</strong> यह मॉडल एक सुविधा निकालने वाला है — परिणाम केवल सांख्यिकीय संकेत हैं और इन्हें एक योग्य चिकित्सा पेशेवर द्वारा समीक्षा की जानी चाहिए।",
+                 preliminaryMessage: "आपके उत्तरों के आधार पर, आपको व्यावसायिक अस्थमा के लक्षण हो सकते हैं। हम अनुशंसा करते हैं कि आप उचित मूल्यांकन के लिए एक स्वास्थ्य देखभाल पेशेवर से परामर्श करें।",
+                 featureLabels: ["खांसी आवृत्ति", "सिरदर्द का पता चला", "श्वास निकास चरण"],
+                 similarityLabel: "प्रशिक्षण सकारात्मकताओं के साथ समानता",
+                 questionNumber: "प्रश्न",
+                 yes: "हाँ",
+                 no: "नहीं",
+                 questions: [
+                     "क्या आपको अक्सर 2 हफ्ते से अधिक समय तक खांसी होती है?",
+                     "क्या आपको काम करते समय सांस की तकलीफ महसूस होती है?",
+                     "क्या आपको काम के दौरान या बाद में सीने में कसावट या घरघराहट महसूस होती है?",
+                     "क्या आपके लक्षण काम से दूर होने पर सुधरते हैं (जैसे वीकेंड/छुट्टियों पर)?",
+                     "क्या आप धुंधले, धुएँ वाले या रसायनों के संपर्क वाले वातावरण में काम करते हैं?",
+                     "क्या आप काम पर सुरक्षा उपकरण (मास्क/रेस्पिरेटर) का नियमित रूप से उपयोग करते हैं?",
+                     "क्या आपको कभी अस्थमा या कोई फेफड़ा रोग का निदान किया गया है?",
+                     "क्या आपको स्पष्ट कारण के बिना अक्सर थकान या कमजोरी महसूस होती है?",
+                     "क्या आपको हाल ही में बुखार या रात को पसीना आया है?",
+                     "क्या आपने कोई अस्पष्टीकृत वजन कमी देखी है?",
+                     "क्या आप खांसी के साथ खून या गाढ़ा बलगम निकालते हैं?",
+                     "क्या आप क्षय रोग से ग्रस्त किसी व्यक्ति के निकट संपर्क में आए हैं?",
+                     "क्या आप खराब वेंटिलेशन वाले या बंद स्थानों में काम करते हैं?",
+                     "क्या आप धूम्रपान करते हैं या आपको नियमित रूप से द्वितीयक धूम्रपान के संपर्क में रहने को मिलता है?",
+                     "क्या इस काम करते समय आपकी सांस की समस्याएं समय के साथ बढ़ी हैं?"
+                 ]
+             }
+         };
+         
+         // Initialize questions array - will be updated when language changes
+         let questions = [];
         
         function initializeQuestions() {
             questions = [
