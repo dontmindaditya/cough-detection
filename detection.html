@@ -898,6 +898,98 @@
             background: #d97706;
         }
 
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 24px;
+        }
+
+        .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            color: #737373;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .step.active {
+            background: #f59e0b;
+            color: #000;
+        }
+
+        .step.completed {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: #2a2a2a;
+        }
+
+        .ai-full-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .recording-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .recording-dot {
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: recording-pulse 1s infinite;
+        }
+
+        @keyframes recording-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .recording-text {
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .recording-timer {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            min-width: 30px;
+        }
+
+        .ai-captured-icon {
+            width: 48px;
+            height: 48px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 24px;
+            margin: 0 auto 12px;
+        }
+
         .ai-results {
             margin-top: 32px;
             display: none;
@@ -1142,218 +1234,237 @@
                 </div>
             </div>
 
-            <!-- AI Safety Analysis Section -->
-            <div id="aiAnalysisSection" class="ai-analysis-section hidden">
+            <!-- AI Safety Analysis Section 1 - Worker Health -->
+            <div id="aiWorkerSection" class="ai-analysis-section hidden">
                 <div class="ai-header">
-                    <div class="ai-title" data-i18n="aiTitle">AI Safety Analysis</div>
-                    <div class="ai-subtitle" data-i18n="aiSubtitle">Analyze worksite conditions and worker health risks</div>
+                    <div class="step-indicator">
+                        <span class="step active">1</span>
+                        <span class="step-line"></span>
+                        <span class="step">2</span>
+                        <span class="step-line"></span>
+                        <span class="step">3</span>
+                    </div>
+                    <div class="ai-title" data-i18n="workerHealth">Worker Health Analysis</div>
+                    <div class="ai-subtitle" data-i18n="workerHealthSubtitle">Record yourself for health assessment</div>
                 </div>
 
-                <div class="ai-grid">
-                    <!-- Worker Health Analysis - Record Self -->
-                    <div class="ai-card">
-                        <div class="ai-card-title">
-                            <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                            </svg>
-                            <span data-i18n="workerHealth">Worker Health Analysis</span>
-                        </div>
-                        <div class="ai-record-self-area" onclick="startWorkerRecording()">
-                            <div class="ai-record-self-icon">📹</div>
-                            <div class="ai-record-self-text" data-i18n="recordYourself">Record Yourself (10 sec)</div>
-                            <div class="ai-record-self-hint" data-i18n="recordHint">Show your face and upper body clearly</div>
-                        </div>
-                        <video id="workerVideoPreview" class="ai-video-preview hidden" autoplay muted></video>
-                        <div id="workerRecordingStatus" class="ai-recording-status hidden">
+                <div class="ai-full-card">
+                    <div class="ai-record-self-area" onclick="startWorkerRecording()">
+                        <div class="ai-record-self-icon">📹</div>
+                        <div class="ai-record-self-text" data-i18n="recordYourself">Record Yourself (10 sec)</div>
+                        <div class="ai-record-self-hint" data-i18n="recordHint">Show your face and upper body clearly</div>
+                    </div>
+                    <video id="workerVideoPreview" class="ai-video-preview hidden" autoplay muted playsinline></video>
+                    <div id="workerRecordingStatus" class="ai-recording-status hidden">
+                        <div class="recording-indicator">
                             <span class="recording-dot"></span>
-                            <span data-i18n="recordingInProgress">Recording...</span>
-                        </div>
-                        <video id="workerVideoRecorder" class="hidden" autoplay muted></video>
-                    </div>
-
-                    <!-- Material Analysis - Take Photo -->
-                    <div class="ai-card">
-                        <div class="ai-card-title">
-                            <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-7-2h2v-4h4v-2h-4V7h-2v4H7v2h4z"/>
-                            </svg>
-                            <span data-i18n="materials">Material Analysis</span>
-                        </div>
-                        <div class="ai-take-photo-area" onclick="startMaterialCapture()">
-                            <div class="ai-photo-icon">📷</div>
-                            <div class="ai-photo-text" data-i18n="takePhoto">Take Photo of Material</div>
-                            <div class="ai-photo-hint" data-i18n="materialHint">Take clear picture of materials you're working with</div>
-                        </div>
-                        <video id="materialVideoCapture" class="ai-video-preview hidden" autoplay muted></video>
-                        <canvas id="materialCanvas" class="hidden"></canvas>
-                        <div id="materialCaptured" class="ai-captured-preview hidden">
-                            <div class="ai-captured-text" data-i18n="photoCaptured">Photo Captured</div>
-                            <button class="ai-retake-btn" onclick="retakeMaterial()" data-i18n="retake">Retake</button>
-                        </div>
-                    </div>
-
-                    <!-- Location & Environment -->
-                    <div class="ai-card">
-                        <div class="ai-card-title">
-                            <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                            </svg>
-                            <span data-i18n="location">Location & Environment</span>
-                        </div>
-                        <div class="ai-input-group">
-                            <label class="ai-label" data-i18n="weather">Weather Condition</label>
-                            <select class="ai-select" id="weatherCondition">
-                                <option value="normal" data-i18n="normal">Normal</option>
-                                <option value="rainy" data-i18n="rainy">Rainy</option>
-                                <option value="hot" data-i18n="hot">Hot</option>
-                                <option value="humid" data-i18n="humid">Humid</option>
-                            </select>
-                        </div>
-                        <div class="ai-input-group" style="margin-top: 12px;">
-                            <label class="ai-label" data-i18n="workEnvironment">Work Environment</label>
-                            <select class="ai-select" id="workEnvironment">
-                                <option value="dusty" data-i18n="dusty">Dusty (Cement/Construction)</option>
-                                <option value="mining" data-i18n="mining">Mining</option>
-                                <option value="indoor" data-i18n="indoor">Indoor/Factory</option>
-                                <option value="outdoor" data-i18n="outdoor">Outdoor/Open Air</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Worksite Video - Record with GPS -->
-                    <div class="ai-card">
-                        <div class="ai-card-title">
-                            <svg class="ai-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 8h2v8H9zm4 2h2v6h-2z"/>
-                            </svg>
-                            <span data-i18n="worksiteVideo">Worksite Video Analysis</span>
-                        </div>
-                        <div class="ai-record-site-area" onclick="startWorksiteRecording()">
-                            <div class="ai-record-site-icon">🎥</div>
-                            <div class="ai-record-site-text" data-i18n="recordSite">Record Worksite Video</div>
-                            <div class="ai-record-site-hint" data-i18n="siteHint">GPS location will be captured automatically</div>
-                        </div>
-                        <div id="gpsStatus" class="ai-gps-status hidden">
-                            <span class="gps-icon">📍</span>
-                            <span id="gpsLocation" data-i18n="gettingLocation">Getting GPS location...</span>
-                        </div>
-                        <video id="worksiteVideoPreview" class="ai-video-preview hidden" autoplay muted></video>
-                        <div id="worksiteRecordingStatus" class="ai-recording-status hidden">
-                            <span class="recording-dot"></span>
-                            <span data-i18n="recordingInProgress">Recording...</span>
-                        </div>
-                        <div id="worksiteCaptured" class="ai-captured-preview hidden">
-                            <div class="ai-captured-text" data-i18n="videoCaptured">Video Captured</div>
-                            <button class="ai-retake-btn" onclick="retakeWorksite()" data-i18n="retake">Retake</button>
-                        </div>
-                        <div class="ai-input-group" style="margin-top: 12px;">
-                            <label class="ai-label" data-i18n="worksiteType">Worksite Type</label>
-                            <select class="ai-select" id="worksiteType">
-                                <option value="construction" data-i18n="construction">Construction</option>
-                                <option value="mining" data-i18n="miningSite">Mining</option>
-                                <option value="factory" data-i18n="factory">Factory</option>
-                                <option value="general" data-i18n="general">General Industrial</option>
-                            </select>
+                            <span class="recording-text" data-i18n="recordingInProgress">Recording...</span>
+                            <span id="workerTimer" class="recording-timer">10</span>
                         </div>
                     </div>
                 </div>
 
-                <button class="ai-run-btn" onclick="runAIAnalysis()">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                <div class="ai-footer-nav">
+                    <button class="ai-nav-btn secondary" onclick="goToQuestionnaire()" data-i18n="backToQuestionnaire">Back</button>
+                    <button id="workerNextBtn" class="ai-nav-btn primary" onclick="goToMaterialAnalysis()" data-i18n="nextMaterial" disabled>Next: Material Analysis</button>
+                </div>
+            </div>
+
+            <!-- AI Safety Analysis Section 2 - Material Analysis -->
+            <div id="aiMaterialSection" class="ai-analysis-section hidden">
+                <div class="ai-header">
+                    <div class="step-indicator">
+                        <span class="step completed">✓</span>
+                        <span class="step-line"></span>
+                        <span class="step active">2</span>
+                        <span class="step-line"></span>
+                        <span class="step">3</span>
+                    </div>
+                    <div class="ai-title" data-i18n="materials">Material Analysis</div>
+                    <div class="ai-subtitle" data-i18n="materialsSubtitle">Take photo of materials you're working with</div>
+                </div>
+
+                <div class="ai-full-card">
+                    <div id="materialStartArea" class="ai-take-photo-area" onclick="startMaterialCapture()">
+                        <div class="ai-photo-icon">📷</div>
+                        <div class="ai-photo-text" data-i18n="takePhoto">Take Photo of Material</div>
+                        <div class="ai-photo-hint" data-i18n="materialHint">Take clear picture of materials you're working with</div>
+                    </div>
+                    <video id="materialVideoCapture" class="ai-video-preview hidden" autoplay muted playsinline></video>
+                    <canvas id="materialCanvas" class="hidden"></canvas>
+                    <div id="materialCaptured" class="ai-captured-preview hidden">
+                        <div class="ai-captured-icon">✓</div>
+                        <div class="ai-captured-text" data-i18n="photoCaptured">Photo Captured</div>
+                        <button class="ai-retake-btn" onclick="retakeMaterial()" data-i18n="retake">Retake</button>
+                    </div>
+                </div>
+
+                <div class="ai-footer-nav">
+                    <button class="ai-nav-btn secondary" onclick="goToWorkerHealth()" data-i18n="backToWorker">Back</button>
+                    <button id="materialNextBtn" class="ai-nav-btn primary" onclick="goToWorksiteAnalysis()" data-i18n="nextWorksite" disabled>Next: Worksite Analysis</button>
+                </div>
+            </div>
+
+            <!-- AI Safety Analysis Section 3 - Worksite Video -->
+            <div id="aiWorksiteSection" class="ai-analysis-section hidden">
+                <div class="ai-header">
+                    <div class="step-indicator">
+                        <span class="step completed">✓</span>
+                        <span class="step-line"></span>
+                        <span class="step completed">✓</span>
+                        <span class="step-line"></span>
+                        <span class="step active">3</span>
+                    </div>
+                    <div class="ai-title" data-i18n="worksiteVideo">Worksite Video Analysis</div>
+                    <div class="ai-subtitle" data-i18n="worksiteSubtitle">Record worksite video with GPS location</div>
+                </div>
+
+                <div class="ai-full-card">
+                    <div id="worksiteStartArea" class="ai-record-site-area" onclick="startWorksiteRecording()">
+                        <div class="ai-record-site-icon">🎥</div>
+                        <div class="ai-record-site-text" data-i18n="recordSite">Record Worksite Video</div>
+                        <div class="ai-record-site-hint" data-i18n="siteHint">GPS location will be captured automatically</div>
+                    </div>
+                    <div id="gpsStatus" class="ai-gps-status hidden">
+                        <span class="gps-icon">📍</span>
+                        <span id="gpsLocation" data-i18n="gettingLocation">Getting GPS location...</span>
+                    </div>
+                    <video id="worksiteVideoPreview" class="ai-video-preview hidden" autoplay muted playsinline></video>
+                    <div id="worksiteRecordingStatus" class="ai-recording-status hidden">
+                        <div class="recording-indicator">
+                            <span class="recording-dot"></span>
+                            <span class="recording-text" data-i18n="recordingInProgress">Recording...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-input-group">
+                    <label class="ai-label" data-i18n="worksiteType">Worksite Type</label>
+                    <select class="ai-select" id="worksiteType">
+                        <option value="construction" data-i18n="construction">Construction</option>
+                        <option value="mining" data-i18n="miningSite">Mining</option>
+                        <option value="factory" data-i18n="factory">Factory</option>
+                        <option value="general" data-i18n="general">General Industrial</option>
+                    </select>
+                </div>
+                <div class="ai-input-group">
+                    <label class="ai-label" data-i18n="weather">Weather Condition</label>
+                    <select class="ai-select" id="weatherCondition">
+                        <option value="normal" data-i18n="normal">Normal</option>
+                        <option value="rainy" data-i18n="rainy">Rainy</option>
+                        <option value="hot" data-i18n="hot">Hot</option>
+                        <option value="humid" data-i18n="humid">Humid</option>
+                    </select>
+                </div>
+                <div class="ai-input-group">
+                    <label class="ai-label" data-i18n="workEnvironment">Work Environment</label>
+                    <select class="ai-select" id="workEnvironment">
+                        <option value="dusty" data-i18n="dusty">Dusty (Cement/Construction)</option>
+                        <option value="mining" data-i18n="mining">Mining</option>
+                        <option value="indoor" data-i18n="indoor">Indoor/Factory</option>
+                        <option value="outdoor" data-i18n="outdoor">Outdoor/Open Air</option>
+                    </select>
+                </div>
+
+                <div class="ai-footer-nav">
+                    <button class="ai-nav-btn secondary" onclick="goToMaterialAnalysis()" data-i18n="backToMaterial">Back</button>
+                    <button id="worksiteNextBtn" class="ai-nav-btn primary" onclick="showAIResults()" data-i18n="getResults" disabled>Get Analysis Results</button>
+                </div>
+            </div>
+
+            <!-- AI Analysis Results -->
+            <div id="aiResultsSection" class="ai-analysis-section hidden">
+                <div class="ai-header">
+                    <div class="ai-title" data-i18n="analysisComplete">Analysis Complete</div>
+                    <div class="ai-subtitle" data-i18n="analysisCompleteSubtitle">Here are your safety analysis results</div>
+                </div>
+
+                <div class="confidence-badge">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg>
-                    <span data-i18n="getResults">Get Analysis Results</span>
-                </button>
+                    <span data-i18n="confidenceScore">Confidence: 78% (Mock Analysis)</span>
+                </div>
 
-                <div id="aiResults" class="ai-results">
-                    <div class="confidence-badge">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                        </svg>
-                        <span data-i18n="confidenceScore">Confidence: 78% (Mock Analysis)</span>
-                    </div>
-
-                    <div class="risk-summary">
-                        <div class="risk-summary-title" data-i18n="riskSummary">Risk Summary</div>
-                        <div class="risk-grid">
-                            <div class="risk-item">
-                                <div class="risk-label" data-i18n="healthRisk">Health Risk</div>
-                                <div id="healthRiskValue" class="risk-value medium">Medium</div>
-                                <div class="risk-bar">
-                                    <div id="healthRiskBar" class="risk-bar-fill medium" style="width: 66%;"></div>
-                                </div>
-                            </div>
-                            <div class="risk-item">
-                                <div class="risk-label" data-i18n="materialRisk">Material Risk</div>
-                                <div id="materialRiskValue" class="risk-value low">Low</div>
-                                <div class="risk-bar">
-                                    <div id="materialRiskBar" class="risk-bar-fill low" style="width: 33%;"></div>
-                                </div>
-                            </div>
-                            <div class="risk-item">
-                                <div class="risk-label" data-i18n="environmentRisk">Environment Risk</div>
-                                <div id="envRiskValue" class="risk-value high">High</div>
-                                <div class="risk-bar">
-                                    <div id="envRiskBar" class="risk-bar-fill high" style="width: 100%;"></div>
-                                </div>
-                            </div>
-                            <div class="risk-item">
-                                <div class="risk-label" data-i18n="overallRisk">Overall Risk</div>
-                                <div id="overallRiskValue" class="risk-value high">High</div>
-                                <div class="risk-bar">
-                                    <div id="overallRiskBar" class="risk-bar-fill high" style="width: 85%;"></div>
-                                </div>
+                <div class="risk-summary">
+                    <div class="risk-summary-title" data-i18n="riskSummary">Risk Summary</div>
+                    <div class="risk-grid">
+                        <div class="risk-item">
+                            <div class="risk-label" data-i18n="healthRisk">Health Risk</div>
+                            <div id="healthRiskValue" class="risk-value">Medium</div>
+                            <div class="risk-bar">
+                                <div id="healthRiskBar" class="risk-bar-fill" style="width: 66%;"></div>
                             </div>
                         </div>
-
-                        <div id="alertBox" class="alert-box immediate">
-                            <div id="alertIcon" class="alert-icon">🔴</div>
-                            <div id="alertText" class="alert-text" data-i18n="immediateAlert">Immediate Danger - Multiple hazards detected!</div>
+                        <div class="risk-item">
+                            <div class="risk-label" data-i18n="materialRisk">Material Risk</div>
+                            <div id="materialRiskValue" class="risk-value">Low</div>
+                            <div class="risk-bar">
+                                <div id="materialRiskBar" class="risk-bar-fill" style="width: 33%;"></div>
+                            </div>
+                        </div>
+                        <div class="risk-item">
+                            <div class="risk-label" data-i18n="environmentRisk">Environment Risk</div>
+                            <div id="envRiskValue" class="risk-value">Medium</div>
+                            <div class="risk-bar">
+                                <div id="envRiskBar" class="risk-bar-fill" style="width: 50%;"></div>
+                            </div>
+                        </div>
+                        <div class="risk-item">
+                            <div class="risk-label" data-i18n="overallRisk">Overall Risk</div>
+                            <div id="overallRiskValue" class="risk-value">Medium</div>
+                            <div class="risk-bar">
+                                <div id="overallRiskBar" class="risk-bar-fill" style="width: 60%;"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="issues-list">
-                        <div class="issues-title" data-i18n="detectedIssues">⚠️ Detected Issues</div>
-                        <div id="issuesList"></div>
+                    <div id="alertBox" class="alert-box">
+                        <div id="alertIcon" class="alert-icon"></div>
+                        <div id="alertText" class="alert-text"></div>
                     </div>
+                </div>
 
-                    <div class="precautions-list">
-                        <div class="precautions-title" data-i18n="recommendedPrecautions">🛡️ Recommended Precautions</div>
-                        <div id="precautionsList"></div>
-                    </div>
+                <div class="issues-list">
+                    <div class="issues-title" data-i18n="detectedIssues">⚠️ Detected Issues</div>
+                    <div id="issuesList"></div>
+                </div>
 
-                    <div class="checklist-grid">
-                        <div class="checklist-item">
-                            <span class="checklist-icon">✅</span>
-                            <span data-i18n="helmet">Helmet</span>
-                        </div>
-                        <div class="checklist-item">
-                            <span class="checklist-icon">❌</span>
-                            <span data-i18n="gloves">Gloves</span>
-                        </div>
-                        <div class="checklist-item">
-                            <span class="checklist-icon">✅</span>
-                            <span data-i18n="mask">N95 Mask</span>
-                        </div>
-                        <div class="checklist-item">
-                            <span class="checklist-icon">✅</span>
-                            <span data-i18n="boots">Safety Boots</span>
-                        </div>
-                        <div class="checklist-item">
-                            <span class="checklist-icon">❌</span>
-                            <span data-i18n="goggles">Safety Goggles</span>
-                        </div>
-                        <div class="checklist-item">
-                            <span class="checklist-icon">⚠️</span>
-                            <span data-i18n="vest">High-vis Vest</span>
-                        </div>
-                    </div>
+                <div class="precautions-list">
+                    <div class="precautions-title" data-i18n="recommendedPrecautions">🛡️ Recommended Precautions</div>
+                    <div id="precautionsList"></div>
+                </div>
 
-                    <div class="ai-footer-nav">
-                        <button class="ai-nav-btn secondary" onclick="goToQuestionnaire()" data-i18n="backToQuestionnaire">Back to Health Assessment</button>
-                        <button class="ai-nav-btn primary" onclick="goToCoughRecording()" data-i18n="proceedCough">Proceed to Cough Recording</button>
+                <div class="checklist-grid">
+                    <div class="checklist-item">
+                        <span class="checklist-icon"></span>
+                        <span data-i18n="helmet">Helmet</span>
                     </div>
+                    <div class="checklist-item">
+                        <span class="checklist-icon"></span>
+                        <span data-i18n="gloves">Gloves</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checklist-icon"></span>
+                        <span data-i18n="mask">N95 Mask</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checklist-icon"></span>
+                        <span data-i18n="boots">Safety Boots</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checklist-icon"></span>
+                        <span data-i18n="goggles">Safety Goggles</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checklist-icon"></span>
+                        <span data-i18n="vest">High-vis Vest</span>
+                    </div>
+                </div>
+
+                <div class="ai-footer-nav">
+                    <button class="ai-nav-btn secondary" onclick="goToWorksiteAnalysis()" data-i18n="backToWorksite">Back</button>
+                    <button class="ai-nav-btn primary" onclick="goToCoughRecording()" data-i18n="proceedCough">Proceed to Cough Recording</button>
                 </div>
             </div>
 
@@ -1584,6 +1695,16 @@
                   boots: "Safety Boots",
                   goggles: "Safety Goggles",
                   vest: "High-vis Vest",
+                  workerHealthSubtitle: "Record yourself for health assessment",
+                  materialsSubtitle: "Take photo of materials you're working with",
+                  worksiteSubtitle: "Record worksite video with GPS location",
+                  nextMaterial: "Next: Material Analysis",
+                  nextWorksite: "Next: Worksite Analysis",
+                  backToWorker: "Back",
+                  backToMaterial: "Back",
+                  backToWorksite: "Back",
+                  analysisComplete: "Analysis Complete",
+                  analysisCompleteSubtitle: "Here are your safety analysis results",
                   questions: [
                       "Do you often have coughing that lasts more than 2 weeks?",
                       "Do you experience shortness of breath while working?",
@@ -1681,6 +1802,16 @@
                   boots: "सेफ्टी बूट्स",
                   goggles: "सेफ्टी गॉगल्स",
                   vest: "हाई-विज वेस्ट",
+                  workerHealthSubtitle: "स्वास्थ्य मूल्यांकन के लिए खुद को रिकॉर्ड करें",
+                  materialsSubtitle: "जिन सामग्रियों के साथ आप काम कर रहे हैं उनकी फोटो लें",
+                  worksiteSubtitle: "GPS स्थान के साथ कार्यस्थल वीडियो रिकॉर्ड करें",
+                  nextMaterial: "अगला: सामग्री विश्लेषण",
+                  nextWorksite: "अगला: कार्यस्थल विश्लेषण",
+                  backToWorker: "पीछे",
+                  backToMaterial: "पीछे",
+                  backToWorksite: "पीछे",
+                  analysisComplete: "विश्लेषण पूर्ण",
+                  analysisCompleteSubtitle: "यह आपके सुरक्षा विश्लेषण के परिणाम हैं",
                   questions: [
                       "क्या आपको अक्सर 2 हफ्ते से अधिक समय तक खांसी होती है?",
                       "क्या आपको काम करते समय सांस की तकलीफ महसूस होती है?",
@@ -1950,6 +2081,11 @@
         let currentGPSLocation = null;
 
         // Worker Health Video Recording
+        // State tracking
+        let workerVideoRecorded = false;
+        let materialPhotoCaptured = false;
+        let worksiteVideoRecorded = false;
+
         function startWorkerRecording() {
             navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                 .then(stream => {
@@ -1960,10 +2096,19 @@
                     document.querySelector('.ai-record-self-area').classList.add('hidden');
                     document.getElementById('workerRecordingStatus').classList.remove('hidden');
 
-                    // Auto-stop after 10 seconds
-                    setTimeout(() => {
-                        stopWorkerRecording();
-                    }, 10000);
+                    // Timer countdown
+                    let timeLeft = 10;
+                    const timerEl = document.getElementById('workerTimer');
+                    timerEl.textContent = timeLeft;
+                    
+                    const timerInterval = setInterval(() => {
+                        timeLeft--;
+                        timerEl.textContent = timeLeft;
+                        if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            stopWorkerRecording();
+                        }
+                    }, 1000);
                 })
                 .catch(err => {
                     console.error('Camera error:', err);
@@ -1983,6 +2128,8 @@
                     <div class="ai-record-self-text">Self Video Recorded</div>
                     <div class="ai-record-self-hint">Click to record again</div>
                 `;
+                workerVideoRecorded = true;
+                document.getElementById('workerNextBtn').disabled = false;
             }
         }
 
@@ -1994,9 +2141,9 @@
                     const video = document.getElementById('materialVideoCapture');
                     video.srcObject = stream;
                     video.classList.remove('hidden');
-                    document.querySelector('.ai-take-photo-area').classList.add('hidden');
+                    document.getElementById('materialStartArea').classList.add('hidden');
 
-                    // Auto-capture after showing preview
+                    // Auto-capture after 3 seconds preview
                     setTimeout(() => {
                         captureMaterialPhoto();
                     }, 3000);
@@ -2010,8 +2157,8 @@
         function captureMaterialPhoto() {
             const video = document.getElementById('materialVideoCapture');
             const canvas = document.getElementById('materialCanvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
             canvas.getContext('2d').drawImage(video, 0, 0);
             capturedMaterialData = canvas.toDataURL('image/jpeg');
 
@@ -2023,12 +2170,16 @@
 
             video.classList.add('hidden');
             document.getElementById('materialCaptured').classList.remove('hidden');
+            materialPhotoCaptured = true;
+            document.getElementById('materialNextBtn').disabled = false;
         }
 
         function retakeMaterial() {
             document.getElementById('materialCaptured').classList.add('hidden');
-            document.querySelector('.ai-take-photo-area').classList.remove('hidden');
+            document.getElementById('materialStartArea').classList.remove('hidden');
             capturedMaterialData = null;
+            materialPhotoCaptured = false;
+            document.getElementById('materialNextBtn').disabled = true;
         }
 
         // Worksite Video with GPS
@@ -2073,7 +2224,7 @@
                     const video = document.getElementById('worksiteVideoPreview');
                     video.srcObject = stream;
                     video.classList.remove('hidden');
-                    document.querySelector('.ai-record-site-area').classList.add('hidden');
+                    document.getElementById('worksiteStartArea').classList.add('hidden');
                     document.getElementById('worksiteRecordingStatus').classList.remove('hidden');
 
                     // Auto-stop after 10 seconds
@@ -2093,13 +2244,49 @@
                 worksiteStream = null;
                 document.getElementById('worksiteVideoPreview').classList.add('hidden');
                 document.getElementById('worksiteRecordingStatus').classList.add('hidden');
-                document.getElementById('worksiteCaptured').classList.remove('hidden');
+                document.getElementById('worksiteStartArea').classList.remove('hidden');
+                document.getElementById('worksiteStartArea').innerHTML = `
+                    <div class="ai-record-site-icon">✅</div>
+                    <div class="ai-record-site-text">Video Recorded</div>
+                    <div class="ai-record-site-hint">Click to record again</div>
+                `;
+                worksiteVideoRecorded = true;
+                document.getElementById('worksiteNextBtn').disabled = false;
             }
         }
 
         function retakeWorksite() {
-            document.getElementById('worksiteCaptured').classList.add('hidden');
-            document.querySelector('.ai-record-site-area').classList.remove('hidden');
+            document.getElementById('worksiteStartArea').classList.remove('hidden');
+            document.getElementById('worksiteStartArea').innerHTML = `
+                <div class="ai-record-site-icon">🎥</div>
+                <div class="ai-record-site-text">Record Worksite Video</div>
+                <div class="ai-record-site-hint">GPS location will be captured automatically</div>
+            `;
+            worksiteVideoRecorded = false;
+            document.getElementById('worksiteNextBtn').disabled = true;
+        }
+
+        // Navigation functions
+        function goToWorkerHealth() {
+            document.getElementById('aiMaterialSection').classList.add('hidden');
+            document.getElementById('aiWorkerSection').classList.remove('hidden');
+        }
+
+        function goToMaterialAnalysis() {
+            document.getElementById('aiWorkerSection').classList.add('hidden');
+            document.getElementById('aiMaterialSection').classList.remove('hidden');
+        }
+
+        function goToWorksiteAnalysis() {
+            document.getElementById('aiMaterialSection').classList.add('hidden');
+            document.getElementById('aiWorksiteSection').classList.remove('hidden');
+        }
+
+        function showAIResults() {
+            document.getElementById('aiWorksiteSection').classList.add('hidden');
+            document.getElementById('aiResultsSection').classList.remove('hidden');
+            runAIAnalysis();
+        }
             currentGPSLocation = null;
         }
 
@@ -2325,20 +2512,68 @@
         }
 
         function goToAIAnalysis() {
+            // Reset states
+            workerVideoRecorded = false;
+            materialPhotoCaptured = false;
+            worksiteVideoRecorded = false;
+            document.getElementById('workerNextBtn').disabled = true;
+            document.getElementById('materialNextBtn').disabled = true;
+            document.getElementById('worksiteNextBtn').disabled = true;
+            
+            // Reset UI elements
+            const workerArea = document.querySelector('.ai-record-self-area');
+            if (workerArea) {
+                workerArea.innerHTML = `
+                    <div class="ai-record-self-icon">📹</div>
+                    <div class="ai-record-self-text" data-i18n="recordYourself">Record Yourself (10 sec)</div>
+                    <div class="ai-record-self-hint" data-i18n="recordHint">Show your face and upper body clearly</div>
+                `;
+            }
+            
+            const materialStart = document.getElementById('materialStartArea');
+            if (materialStart) {
+                materialStart.innerHTML = `
+                    <div class="ai-photo-icon">📷</div>
+                    <div class="ai-photo-text" data-i18n="takePhoto">Take Photo of Material</div>
+                    <div class="ai-photo-hint" data-i18n="materialHint">Take clear picture of materials you're working with</div>
+                `;
+                materialStart.classList.remove('hidden');
+            }
+            
+            const materialCaptured = document.getElementById('materialCaptured');
+            if (materialCaptured) materialCaptured.classList.add('hidden');
+            
+            const worksiteArea = document.getElementById('worksiteStartArea');
+            if (worksiteArea) {
+                worksiteArea.innerHTML = `
+                    <div class="ai-record-site-icon">🎥</div>
+                    <div class="ai-record-site-text" data-i18n="recordSite">Record Worksite Video</div>
+                    <div class="ai-record-site-hint" data-i18n="siteHint">GPS location will be captured automatically</div>
+                `;
+            }
+            
+            const gpsStatus = document.getElementById('gpsStatus');
+            if (gpsStatus) gpsStatus.classList.add('hidden');
+            
             document.getElementById('questionnaireSection').classList.add('hidden');
-            document.getElementById('aiAnalysisSection').classList.remove('hidden');
+            document.getElementById('aiWorkerSection').classList.remove('hidden');
+            document.getElementById('aiMaterialSection').classList.add('hidden');
+            document.getElementById('aiWorksiteSection').classList.add('hidden');
+            document.getElementById('aiResultsSection').classList.add('hidden');
             document.getElementById('uploadSection').classList.add('hidden');
             document.getElementById('resultsSection').classList.add('hidden');
-            document.getElementById('aiResults').classList.remove('show');
         }
 
         function goToQuestionnaire() {
-            document.getElementById('aiAnalysisSection').classList.add('hidden');
+            document.getElementById('aiWorkerSection').classList.add('hidden');
+            document.getElementById('aiMaterialSection').classList.add('hidden');
+            document.getElementById('aiWorksiteSection').classList.add('hidden');
+            document.getElementById('aiResultsSection').classList.add('hidden');
             document.getElementById('questionnaireSection').classList.remove('hidden');
         }
 
         function goToCoughRecording() {
-            document.getElementById('aiAnalysisSection').classList.add('hidden');
+            document.getElementById('aiResultsSection').classList.add('hidden');
             document.getElementById('uploadSection').classList.remove('hidden');
         }
 
