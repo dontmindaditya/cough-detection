@@ -887,14 +887,29 @@
         }
 
         function evaluateConditions() {
-            const yes = (ids) => ids.some(id => answers[id] === true);
-            const tbRisk = yes([1, 9, 10, 11, 12]);
-            const silicosisRisk = yes([2, 5, 13, 15]);
-            const bronchitisRisk = yes([1, 11, 14, 5]);
+            const countYes = (ids) => ids.filter(id => answers[id] === true).length;
 
-            if (tbRisk) return { condition: "Tuberculosis", risk: "high", message: "Based on your responses, you may be at risk for Tuberculosis. Symptoms like chronic cough, fever, night sweats, weight loss, and potential TB exposure require immediate medical attention." };
-            if (silicosisRisk) return { condition: "Silicosis / Pneumoconiosis", risk: "medium", message: "Your symptoms suggest possible Silicosis or Pneumoconiosis, often caused by prolonged exposure to dust in mining, construction, or industrial settings." };
-            if (bronchitisRisk) return { condition: "Chronic Bronchitis", risk: "medium", message: "Your responses indicate patterns consistent with Chronic Bronchitis, commonly associated with smoking and workplace air pollutants." };
+            const tbQuestions = [1, 9, 10, 11, 12];
+            const silicosisQuestions = [2, 5, 13, 15];
+            const bronchitisQuestions = [1, 5, 11, 14];
+
+            const tbScore = countYes(tbQuestions);
+            const silicosisScore = countYes(silicosisQuestions);
+            const bronchitisScore = countYes(bronchitisQuestions);
+
+            const maxScore = Math.max(tbScore, silicosisScore, bronchitisScore);
+
+            if (maxScore === 0) return null;
+
+            if (tbScore === maxScore) {
+                return { condition: "Tuberculosis", risk: "high", message: "Based on your responses, you may be at risk for Tuberculosis. Symptoms like chronic cough, fever, night sweats, weight loss, and potential TB exposure require immediate medical attention." };
+            }
+            if (silicosisScore === maxScore) {
+                return { condition: "Silicosis / Pneumoconiosis", risk: "medium", message: "Your symptoms suggest possible Silicosis or Pneumoconiosis, often caused by prolonged exposure to dust in mining, construction, or industrial settings." };
+            }
+            if (bronchitisScore === maxScore) {
+                return { condition: "Chronic Bronchitis", risk: "medium", message: "Your responses indicate patterns consistent with Chronic Bronchitis, commonly associated with smoking and workplace air pollutants." };
+            }
 
             return null;
         }
