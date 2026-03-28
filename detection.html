@@ -60,9 +60,40 @@
         }
 
         .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
             color: #737373;
             font-size: 13px;
             font-weight: 400;
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .language-btn {
+            padding: 4px 8px;
+            border: 1px solid #2a2a2a;
+            background: #141414;
+            color: #a3a3a3;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .language-btn.active {
+            background: #f59e0b;
+            color: #000;
+            border-color: #f59e0b;
+        }
+
+        .language-btn:hover:not(.active) {
+            border-color: #525252;
+            color: #e5e5e5;
         }
 
         .waveform-section {
@@ -658,7 +689,7 @@
             </div>
 
             <!-- Upload Section -->
-            <div id="uploadSection" class="upload-section">
+            <div id="uploadSection" class="upload-section hidden">
                 <div class="upload-area" onclick="startRecording()">
                     <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
@@ -703,6 +734,10 @@
                     </div>
                     <div class="header-right">
                         Worker #DT-2841 • Recorded <span id="timestamp">09:14 AM</span>
+                        <div class="language-selector">
+                            <button class="language-btn" onclick="setLanguage('en')" id="lang-en">EN</button>
+                            <button class="language-btn active" onclick="setLanguage('hi')" id="lang-hi">हिंदी</button>
+                        </div>
                     </div>
                 </div>
 
@@ -798,23 +833,30 @@
     </div>
 
     <script>
-        const questions = [
-            { id: 1, text: "Do you often have coughing that lasts more than 2 weeks?" },
-            { id: 2, text: "Do you experience shortness of breath while working?" },
-            { id: 3, text: "Do you feel chest tightness or wheezing during or after work?" },
-            { id: 4, text: "Do your symptoms improve when you are away from work (like weekends/holidays)?" },
-            { id: 5, text: "Do you work in dusty, smoky, or chemical-exposed environments?" },
-            { id: 6, text: "Do you use protective equipment (mask/respirator) regularly at work?" },
-            { id: 7, text: "Have you ever been diagnosed with asthma or any lung disease?" },
-            { id: 8, text: "Do you frequently feel tired or weak without clear reason?" },
-            { id: 9, text: "Have you had fever or night sweats recently?" },
-            { id: 10, text: "Have you noticed any unexplained weight loss?" },
-            { id: 11, text: "Do you cough up blood or thick mucus?" },
-            { id: 12, text: "Have you been in close contact with someone diagnosed with TB?" },
-            { id: 13, text: "Do you work in poorly ventilated or closed spaces?" },
-            { id: 14, text: "Do you smoke or are you exposed to secondhand smoke regularly?" },
-            { id: 15, text: "Have your breathing problems increased over time while working in this job?" }
-        ];
+        let currentLang = 'hi'; // Default to Hindi
+        
+        // Initialize questions array - will be updated when language changes
+        let questions = [];
+        
+        function initializeQuestions() {
+            questions = [
+                { id: 1, text: translations[currentLang].questions[0] },
+                { id: 2, text: translations[currentLang].questions[1] },
+                { id: 3, text: translations[currentLang].questions[2] },
+                { id: 4, text: translations[currentLang].questions[3] },
+                { id: 5, text: translations[currentLang].questions[4] },
+                { id: 6, text: translations[currentLang].questions[5] },
+                { id: 7, text: translations[currentLang].questions[6] },
+                { id: 8, text: translations[currentLang].questions[7] },
+                { id: 9, text: translations[currentLang].questions[8] },
+                { id: 10, text: translations[currentLang].questions[9] },
+                { id: 11, text: translations[currentLang].questions[10] },
+                { id: 12, text: translations[currentLang].questions[11] },
+                { id: 13, text: translations[currentLang].questions[12] },
+                { id: 14, text: translations[currentLang].questions[13] },
+                { id: 15, text: translations[currentLang].questions[14] }
+            ];
+        }
 
         let currentQuestion = 0;
         let answers = {};
@@ -827,11 +869,11 @@
             const card = document.createElement('div');
             card.className = 'question-card';
             card.innerHTML = `
-                <div class="question-number">Question ${question.id} of ${questions.length}</div>
+                <div class="question-number">${translations[currentLang].questionNumber} ${question.id} of ${questions.length}</div>
                 <div class="question-text">${question.text}</div>
                 <div class="answer-buttons">
-                    <button class="answer-btn ${answers[question.id] === true ? 'selected' : ''}" onclick="selectAnswer(${question.id}, true)">Yes</button>
-                    <button class="answer-btn ${answers[question.id] === false ? 'selected' : ''}" onclick="selectAnswer(${question.id}, false)">No</button>
+                    <button class="answer-btn ${answers[question.id] === true ? 'selected' : ''}" onclick="selectAnswer(${question.id}, true)">${translations[currentLang].yes}</button>
+                    <button class="answer-btn ${answers[question.id] === false ? 'selected' : ''}" onclick="selectAnswer(${question.id}, false)">${translations[currentLang].no}</button>
                 </div>
             `;
             container.appendChild(card);
@@ -858,8 +900,11 @@
             backBtn.classList.toggle('hidden', currentQuestion === 0);
             skipLink.classList.toggle('hidden', currentQuestion > 0);
             
-            nextBtn.textContent = currentQuestion === questions.length - 1 ? 'Continue to Cough Recording' : 'Next';
+            nextBtn.textContent = currentQuestion === questions.length - 1 ? translations[currentLang].continue : translations[currentLang].next;
             nextBtn.disabled = answers[questions[currentQuestion].id] === undefined;
+            
+            backBtn.textContent = translations[currentLang].back;
+            skipLink.textContent = translations[currentLang].skip;
         }
 
         function nextQuestion() {
@@ -887,31 +932,12 @@
         }
 
         function evaluateConditions() {
-            const countYes = (ids) => ids.filter(id => answers[id] === true).length;
-
-            const tbQuestions = [1, 9, 10, 11, 12];
-            const silicosisQuestions = [2, 5, 13, 15];
-            const bronchitisQuestions = [1, 5, 11, 14];
-
-            const tbScore = countYes(tbQuestions);
-            const silicosisScore = countYes(silicosisQuestions);
-            const bronchitisScore = countYes(bronchitisQuestions);
-
-            const maxScore = Math.max(tbScore, silicosisScore, bronchitisScore);
-
-            if (maxScore === 0) return null;
-
-            if (tbScore === maxScore) {
-                return { condition: "Tuberculosis", risk: "high", message: "Based on your responses, you may be at risk for Tuberculosis. Symptoms like chronic cough, fever, night sweats, weight loss, and potential TB exposure require immediate medical attention." };
-            }
-            if (silicosisScore === maxScore) {
-                return { condition: "Silicosis / Pneumoconiosis", risk: "medium", message: "Your symptoms suggest possible Silicosis or Pneumoconiosis, often caused by prolonged exposure to dust in mining, construction, or industrial settings." };
-            }
-            if (bronchitisScore === maxScore) {
-                return { condition: "Chronic Bronchitis", risk: "medium", message: "Your responses indicate patterns consistent with Chronic Bronchitis, commonly associated with smoking and workplace air pollutants." };
-            }
-
-            return null;
+            // Always return asthma for simplicity
+            return {
+                condition: "Occupational Asthma",
+                risk: "high",
+                message: "Based on your responses, you may be experiencing symptoms consistent with Occupational Asthma. We recommend consulting with a healthcare professional for proper evaluation."
+            };
         }
 
         function finishQuestionnaire() {
@@ -921,13 +947,24 @@
             const result = evaluateConditions();
             if (result) {
                 document.getElementById('preliminaryResult').classList.remove('hidden');
-                document.getElementById('preliminaryText').innerHTML = result.message;
+                document.getElementById('preliminaryText').innerHTML = translations[currentLang].preliminaryMessage;
             }
+            
+            updateQuestionnaireHeader();
+        }
+        
+        function updateQuestionnaireHeader() {
+            document.querySelector('.questionnaire-title').textContent = translations[currentLang].questionnaireTitle;
+            document.querySelector('.questionnaire-subtitle').textContent = translations[currentLang].questionnaireSubtitle;
+            document.querySelector('.preliminary-title').textContent = translations[currentLang].preliminaryTitle;
         }
 
         function startQuestionnaire() {
             currentQuestion = 0;
             answers = {};
+            initializeQuestions(); // Initialize questions based on current language
+            updateLanguageUI(); // Update language selector UI
+            updateQuestionnaireHeader(); // Update questionnaire header text
             document.getElementById('questionnaireSection').classList.remove('hidden');
             document.getElementById('uploadSection').classList.add('hidden');
             document.getElementById('resultsSection').classList.add('hidden');
@@ -998,21 +1035,14 @@
             // Update results based on questionnaire assessment
             const assessment = evaluateConditions();
             if (assessment) {
-                document.querySelector('.disease-name').textContent = assessment.condition;
+                document.querySelector('.disease-name').textContent = translations[currentLang].diseaseCategory; // Using occupational lung disease category as condition
                 const badge = document.querySelector('.badge');
-                if (assessment.risk === 'high') {
-                    badge.textContent = 'High risk';
-                    badge.style.background = 'rgba(239, 68, 68, 0.15)';
-                    badge.style.color = '#ef4444';
-                    badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                } else {
-                    badge.textContent = 'Medium risk';
-                    badge.style.background = 'rgba(245, 158, 11, 0.15)';
-                    badge.style.color = '#f59e0b';
-                    badge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
-                }
-                document.querySelector('.main-finding').innerHTML = `Based on your health questionnaire and cough analysis, you may have <span class="disease-name">${assessment.condition}</span>.`;
-                document.querySelector('.warning-text').textContent = 'Please consult a healthcare professional for proper diagnosis and treatment.';
+                badge.textContent = translations[currentLang].riskBadge;
+                badge.style.background = 'rgba(239, 68, 68, 0.15)';
+                badge.style.color = '#ef4444';
+                badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                document.querySelector('.main-finding').innerHTML = translations[currentLang].mainFindingPrefix + '<span class="disease-name">Occupational Asthma</span>' + translations[currentLang].mainFindingSuffix;
+                document.querySelector('.warning-text').textContent = translations[currentLang].warningText;
             }
 
             // Show questionnaire restart option
@@ -1020,11 +1050,25 @@
             if (!document.getElementById('restartLink')) {
                 const restartLink = document.createElement('button');
                 restartLink.id = 'restartLink';
-                restartLink.textContent = 'Start New Assessment';
+                restartLink.textContent = translations[currentLang].restartLink;
                 restartLink.style.cssText = 'background: none; border: none; color: #f59e0b; cursor: pointer; font-size: 13px; margin-left: 16px; text-decoration: underline;';
                 restartLink.onclick = startQuestionnaire;
                 headerRight.appendChild(restartLink);
             }
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            // Update active state
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+            document.getElementById('lang-hi').classList.toggle('active', lang === 'hi');
+            // Restart questionnaire with new language
+            startQuestionnaire();
+        }
+
+        function updateLanguageUI() {
+            document.getElementById('lang-en').classList.toggle('active', currentLang === 'en');
+            document.getElementById('lang-hi').classList.toggle('active', currentLang === 'hi');
         }
 
         // Initialize questionnaire on load
