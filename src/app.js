@@ -1030,7 +1030,12 @@ let currentLang = 'en';
         }
         // Initialize questionnaire on load
         window.addEventListener('load', () => {
-            loadMockPreview();
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('preview') === 'analysis') {
+                loadMockPreview();
+                return;
+            }
+            startQuestionnaire();
         });
 
 Object.assign(window, {
