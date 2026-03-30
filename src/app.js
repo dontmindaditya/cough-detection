@@ -995,7 +995,8 @@ let currentLang = 'hi';
         }
 
         function updatePPEChecklist(materials, forceMissing = false) {
-            // This is a mock - in real app, analyze video for actual PPE
+            // Hardcoded result: show every PPE item as missing
+            forceMissing = true;
             const checklist = [
                 { name: 'helmet', status: forceMissing ? false : Math.random() > 0.3 },
                 { name: 'gloves', status: forceMissing ? false : (materials.includes('cement') ? Math.random() > 0.6 : Math.random() > 0.5) },
