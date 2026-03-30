@@ -2,7 +2,7 @@ import { renderAppLayout } from "./components/layout.js";
 
 document.getElementById("app").innerHTML = renderAppLayout();
 
-let currentLang = 'en';
+let currentLang = 'hi';
          
           const translations = {
               en: {
@@ -76,6 +76,7 @@ let currentLang = 'en';
                   overallRisk: "Overall Risk",
                   detectedIssues: "⚠️ Detected Issues",
                   recommendedPrecautions: "🛡️ Recommended Precautions",
+                  detailedGuideTitle: "Detailed Safety Guide",
                   immediateAlert: "Immediate Danger - Multiple hazards detected!",
                   cautionAlert: "Caution - Some hazards detected",
                   safeAlert: "Safe - Minimal hazards detected",
@@ -186,6 +187,7 @@ let currentLang = 'en';
                   overallRisk: "समग्र जोखिम",
                   detectedIssues: "⚠️ पाए गए मुद्दे",
                   recommendedPrecautions: "🛡️ अनुशंसित सावधानियां",
+                  detailedGuideTitle: "विस्तृत सुरक्षा गाइड",
                   immediateAlert: "तत्काल खतरा - कई खतरे पाए गए!",
                   cautionAlert: "सावधानी - कुछ खतरे पाए गए",
                   safeAlert: "सुरक्षित - न्यूनतम खतरे पाए गए",
@@ -351,10 +353,21 @@ let currentLang = 'en';
             document.querySelector('.preliminary-title').textContent = translations[currentLang].preliminaryTitle;
         }
 
+        function applyStaticTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach((node) => {
+                const key = node.getAttribute('data-i18n');
+                const value = translations[currentLang][key];
+                if (typeof value === 'string') {
+                    node.textContent = value;
+                }
+            });
+        }
+
         function startQuestionnaire() {
             currentQuestion = 0;
             answers = {};
             initializeQuestions(); // Initialize questions based on current language
+            applyStaticTranslations();
             updateLanguageUI(); // Update language selector UI
             updateQuestionnaireHeader(); // Update questionnaire header text
             document.getElementById('questionnaireSection').classList.remove('hidden');
@@ -404,6 +417,7 @@ let currentLang = 'en';
         function showResults() {
             document.getElementById('analyzingSection').classList.add('hidden');
             document.getElementById('resultsSection').classList.remove('hidden');
+            applyStaticTranslations();
             generateWaveform();
             
             // Update timestamp
@@ -708,18 +722,21 @@ let currentLang = 'en';
 
         // Navigation functions
         function goToWorkerHealth() {
+            applyStaticTranslations();
             document.getElementById('aiMaterialSection').classList.add('hidden');
             document.getElementById('aiResultsSection').classList.add('hidden');
             document.getElementById('aiWorkerSection').classList.remove('hidden');
         }
 
         function goToMaterialAnalysis() {
+            applyStaticTranslations();
             document.getElementById('aiWorkerSection').classList.add('hidden');
             document.getElementById('aiResultsSection').classList.add('hidden');
             document.getElementById('aiMaterialSection').classList.remove('hidden');
         }
 
         function showAIResults() {
+            applyStaticTranslations();
             document.getElementById('aiMaterialSection').classList.add('hidden');
             document.getElementById('aiResultsSection').classList.remove('hidden');
             runAIAnalysis();
@@ -733,11 +750,11 @@ let currentLang = 'en';
 
         function runAIAnalysis() {
             if (mockDangerMode) {
-                updateRiskDisplay('health', 3);
-                updateRiskDisplay('material', 3);
-                updateRiskDisplay('env', 3);
-                updateRiskDisplay('overall', 3);
-                updateAlert(3);
+                updateRiskDisplay('health', 2);
+                updateRiskDisplay('material', 1);
+                updateRiskDisplay('env', 1);
+                updateRiskDisplay('overall', 2);
+                updateAlert(2);
 
                 const issueIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path></svg>';
                 const precautionIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>';
@@ -761,6 +778,28 @@ let currentLang = 'en';
                 document.getElementById('precautionsList').innerHTML = mockPrecautions
                     .map((item) => '<div class="precaution-item">' + precautionIcon + '<span>' + item + '</span></div>')
                     .join('');
+                renderDetailedGuide([
+                    {
+                        heading: 'क्या पहनना चाहिए',
+                        steps: [
+                            'सिर की सुरक्षा के लिए मजबूत हेलमेट पहनें ताकि ऊपर से गिरने वाली चीजों से बचाव हो सके।',
+                            'सांस की सुरक्षा के लिए सही फिट वाला N95 मास्क या रेस्पिरेटर पहनें, खासकर धूल वाले काम में।',
+                            'हाथों की सुरक्षा के लिए मजबूत ग्लव्स पहनें ताकि सीमेंट, केमिकल और रगड़ से बचाव हो।',
+                            'आंखों की सुरक्षा के लिए सेफ्टी गॉगल्स पहनें ताकि धूल और कण आंखों में न जाएं।',
+                            'पैरों की सुरक्षा के लिए सेफ्टी बूट्स पहनें और यदि साइट सक्रिय है तो हाई-विज वेस्ट भी पहनें।'
+                        ]
+                    },
+                    {
+                        heading: 'कैसे ध्यान रखना चाहिए',
+                        steps: [
+                            'काम शुरू करने से पहले जांच लें कि सभी सुरक्षा उपकरण सही तरह पहने गए हैं और ढीले नहीं हैं।',
+                            'यदि मास्क गीला, ढीला या गंदा हो जाए तो तुरंत बदलें और बिना मास्क धूल वाले क्षेत्र में काम न करें।',
+                            'सीमेंट या केमिकल हाथ या त्वचा पर लगने पर तुरंत साफ पानी से धोएं और त्वचा सूखी रखें।',
+                            'हर 30 से 45 मिनट में थोड़ी देर साफ हवा वाली जगह पर जाएं और पानी पिएं।',
+                            'यदि खांसी, सांस फूलना, आंखों में जलन या चक्कर जैसा लक्षण बढ़े तो काम रोककर सुपरवाइजर को बताएं।'
+                        ]
+                    }
+                ]);
 
                 updatePPEChecklist([], true);
                 return;
@@ -827,6 +866,39 @@ let currentLang = 'en';
 
             // Update PPE checklist
             updatePPEChecklist(detectedMaterials);
+            renderDetailedGuide([
+                {
+                    heading: 'क्या पहनना चाहिए',
+                    steps: [
+                        'धूल वाले काम में N95 मास्क या रेस्पिरेटर लगातार पहनें।',
+                        'हाथों की सुरक्षा के लिए ग्लव्स और पैरों की सुरक्षा के लिए सेफ्टी बूट्स पहनें।',
+                        'यदि कण उड़ रहे हों तो सेफ्टी गॉगल्स का उपयोग करें।'
+                    ]
+                },
+                {
+                    heading: 'कैसे ध्यान रखना चाहिए',
+                    steps: [
+                        'काम के दौरान बीच-बीच में पानी पिएं और छोटी ब्रेक लें।',
+                        'काम के बाद हाथ, चेहरा और खुली त्वचा अच्छी तरह साफ करें।',
+                        'यदि सांस की तकलीफ या जलन बढ़े तो तुरंत रिपोर्ट करें।'
+                    ]
+                }
+            ]);
+        }
+
+        function renderDetailedGuide(sections) {
+            const stepIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"></path></svg>';
+            const guide = document.getElementById('detailedGuide');
+            if (!guide) {
+                return;
+            }
+
+            guide.innerHTML = sections.map((section) => (
+                '<div class="guide-block">' +
+                    '<div class="guide-heading">' + section.heading + '</div>' +
+                    section.steps.map((step) => '<div class="guide-step">' + stepIcon + '<span>' + step + '</span></div>').join('') +
+                '</div>'
+            )).join('');
         }
 
         function updateRiskDisplay(type, score) {

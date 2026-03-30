@@ -162,6 +162,11 @@ export function renderAIAnalysisSection() {
         <div id="precautionsList"></div>
     </div>
 
+    <div class="precautions-list">
+        <div class="precautions-title" data-i18n="detailedGuideTitle">Detailed Safety Guide</div>
+        <div id="detailedGuide"></div>
+    </div>
+
     <div class="checklist-grid">
         <div class="checklist-item"><span class="checklist-icon"></span><span data-i18n="helmet">Helmet</span></div>
         <div class="checklist-item"><span class="checklist-icon"></span><span data-i18n="gloves">Gloves</span></div>
