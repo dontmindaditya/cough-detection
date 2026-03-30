@@ -751,7 +751,7 @@ let currentLang = 'hi';
         function runAIAnalysis() {
             if (mockDangerMode) {
                 updateRiskDisplay('health', 2);
-                updateRiskDisplay('material', 1);
+                updateRiskDisplay('material', 3);
                 updateRiskDisplay('env', 1);
                 updateRiskDisplay('overall', 2);
                 updateAlert(2);
