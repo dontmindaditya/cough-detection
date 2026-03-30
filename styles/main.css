@@ -1263,3 +1263,151 @@
             border-color: #525252;
             color: #e5e5e5;
         }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 16px;
+            }
+
+            .card-header,
+            .waveform-section,
+            .result-section,
+            .disclaimer,
+            .upload-section,
+            .questionnaire-section,
+            .ai-analysis-section {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .result-section {
+                gap: 28px;
+            }
+
+            .risk-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .feature-grid,
+            .checklist-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 680px) {
+            body {
+                display: block;
+                min-height: auto;
+                padding: 12px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .analysis-card {
+                border-radius: 14px;
+            }
+
+            .card-header,
+            .questionnaire-header,
+            .questionnaire-footer,
+            .ai-footer-nav,
+            .header-right,
+            .waveform-meta,
+            .similarity-label {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .card-header,
+            .waveform-section,
+            .result-section,
+            .disclaimer,
+            .upload-section,
+            .questionnaire-section,
+            .ai-analysis-section {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .header-right {
+                gap: 12px;
+            }
+
+            .language-selector {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .language-btn {
+                min-width: 64px;
+                text-align: center;
+            }
+
+            .result-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 24px;
+                padding-top: 28px;
+                padding-bottom: 28px;
+            }
+
+            .result-content,
+            .confidence-gauge,
+            .questionnaire-header-left,
+            .main-finding,
+            .risk-summary,
+            .issues-list,
+            .precautions-list,
+            .ai-full-card {
+                width: 100%;
+            }
+
+            .waveform-meta,
+            .questionnaire-footer,
+            .ai-footer-nav {
+                gap: 12px;
+            }
+
+            .waveform-meta,
+            .meta-left,
+            .meta-right,
+            .header-right,
+            .questionnaire-header-left {
+                text-align: left;
+            }
+
+            .feature-grid,
+            .risk-grid,
+            .checklist-grid,
+            .ai-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .answer-buttons {
+                flex-direction: column;
+            }
+
+            .record-btn,
+            .nav-btn,
+            .ai-nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .upload-area {
+                padding: 28px 18px;
+            }
+
+            .main-finding,
+            .gauge-percentage {
+                font-size: 18px;
+            }
+
+            .gauge-circle {
+                width: 120px;
+                height: 120px;
+            }
+        }
