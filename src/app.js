@@ -933,53 +933,54 @@ let currentLang = 'hi';
         function updateIssuesAndPrecautions(workEnv, materials) {
             const issues = [];
             const precautions = [];
+            const isHindi = currentLang === 'hi';
 
             if (workEnv === 'dusty') {
-                issues.push('Possible skin irritation due to cement or dust exposure');
-                precautions.push('Wear an N95 mask at all times');
-                precautions.push('Use protective gloves when handling dusty materials');
+                issues.push(isHindi ? 'सीमेंट या धूल के संपर्क से त्वचा में जलन हो सकती है' : 'Possible skin irritation due to cement or dust exposure');
+                precautions.push(isHindi ? 'हर समय N95 मास्क पहनें' : 'Wear an N95 mask at all times');
+                precautions.push(isHindi ? 'धूल वाली सामग्री संभालते समय सुरक्षात्मक ग्लव्स पहनें' : 'Use protective gloves when handling dusty materials');
             }
             if (workEnv === 'mining') {
-                issues.push('High dust exposure in mining environment');
-                issues.push('Potential toxic gas risk');
-                precautions.push('Use a respirator with proper filters');
-                precautions.push('Ensure proper ventilation');
+                issues.push(isHindi ? 'खनन क्षेत्र में धूल का स्तर बहुत अधिक है' : 'High dust exposure in mining environment');
+                issues.push(isHindi ? 'विषैली गैस का संभावित खतरा है' : 'Potential toxic gas risk');
+                precautions.push(isHindi ? 'उपयुक्त फिल्टर वाला रेस्पिरेटर उपयोग करें' : 'Use a respirator with proper filters');
+                precautions.push(isHindi ? 'पर्याप्त वेंटिलेशन सुनिश्चित करें' : 'Ensure proper ventilation');
             }
             if (workEnv === 'indoor') {
-                issues.push('Poor ventilation in indoor workspace');
-                precautions.push('Keep windows or vents open for airflow');
-                precautions.push('Take breaks outside regularly');
+                issues.push(isHindi ? 'इनडोर कार्यस्थल में वेंटिलेशन कमजोर है' : 'Poor ventilation in indoor workspace');
+                precautions.push(isHindi ? 'हवा के प्रवाह के लिए खिड़कियां या वेंट खुले रखें' : 'Keep windows or vents open for airflow');
+                precautions.push(isHindi ? 'नियमित रूप से बाहर जाकर छोटे ब्रेक लें' : 'Take breaks outside regularly');
             }
 
             if (materials.includes('cement')) {
-                issues.push('Cement can cause skin burns and irritation');
-                precautions.push('Wash hands immediately after work');
-                precautions.push('Apply skin moisturizer after washing');
+                issues.push(isHindi ? 'सीमेंट से त्वचा में जलन या जलन जैसी चोट हो सकती है' : 'Cement can cause skin burns and irritation');
+                precautions.push(isHindi ? 'काम के तुरंत बाद हाथ धोएं' : 'Wash hands immediately after work');
+                precautions.push(isHindi ? 'हाथ धोने के बाद त्वचा पर मॉइस्चराइज़र लगाएं' : 'Apply skin moisturizer after washing');
             }
             if (materials.includes('sand')) {
-                issues.push('Dust inhalation risk from sand work');
-                precautions.push('Wear a dust mask continuously');
-                precautions.push('Wet the area before working');
+                issues.push(isHindi ? 'रेत के काम से धूल सांस के साथ अंदर जा सकती है' : 'Dust inhalation risk from sand work');
+                precautions.push(isHindi ? 'लगातार डस्ट मास्क पहनें' : 'Wear a dust mask continuously');
+                precautions.push(isHindi ? 'काम शुरू करने से पहले क्षेत्र को हल्का गीला करें' : 'Wet the area before working');
             }
             if (materials.includes('chemicals')) {
-                issues.push('High toxic risk from chemical exposure');
-                precautions.push('Use chemical-resistant gloves');
-                precautions.push('Work only in a well-ventilated area');
-                precautions.push('Seek medical attention if exposure occurs');
+                issues.push(isHindi ? 'केमिकल के संपर्क से विषाक्तता का खतरा अधिक है' : 'High toxic risk from chemical exposure');
+                precautions.push(isHindi ? 'केमिकल-प्रतिरोधी ग्लव्स पहनें' : 'Use chemical-resistant gloves');
+                precautions.push(isHindi ? 'केवल अच्छी वेंटिलेशन वाली जगह पर काम करें' : 'Work only in a well-ventilated area');
+                precautions.push(isHindi ? 'यदि संपर्क हो जाए तो तुरंत चिकित्सकीय सलाह लें' : 'Seek medical attention if exposure occurs');
             }
             if (materials.includes('putty')) {
-                issues.push('Mild chemical exposure from putty');
-                precautions.push('Avoid prolonged skin contact');
+                issues.push(isHindi ? 'पुट्टी से हल्का रासायनिक संपर्क हो सकता है' : 'Mild chemical exposure from putty');
+                precautions.push(isHindi ? 'त्वचा के लंबे संपर्क से बचें' : 'Avoid prolonged skin contact');
             }
 
             if (!currentGPSLocation) {
-                issues.push('Location was not shared during the body scan');
-                precautions.push('Turn on location for future check-ins so the scan includes site context');
+                issues.push(isHindi ? 'बॉडी स्कैन के दौरान लोकेशन साझा नहीं की गई' : 'Location was not shared during the body scan');
+                precautions.push(isHindi ? 'अगली बार चेक-इन में लोकेशन चालू रखें ताकि साइट संदर्भ भी शामिल हो' : 'Turn on location for future check-ins so the scan includes site context');
             }
 
             if (precautions.length < 3) {
-                precautions.push('Take 10-minute breaks every hour');
-                precautions.push('Stay hydrated throughout the day');
+                precautions.push(isHindi ? 'हर घंटे 10 मिनट का ब्रेक लें' : 'Take 10-minute breaks every hour');
+                precautions.push(isHindi ? 'पूरे दिन पर्याप्त पानी पीते रहें' : 'Stay hydrated throughout the day');
             }
 
             const issueIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path></svg>';
@@ -987,7 +988,7 @@ let currentLang = 'hi';
             const issuesList = document.getElementById('issuesList');
             issuesList.innerHTML = issues.length > 0
                 ? issues.map(i => '<div class="issue-item">' + issueIcon + '<span>' + i + '</span></div>').join('')
-                : '<div class="issue-item">' + issueIcon + '<span>No significant issues detected</span></div>';
+                : '<div class="issue-item">' + issueIcon + '<span>' + (isHindi ? 'कोई महत्वपूर्ण समस्या नहीं मिली' : 'No significant issues detected') + '</span></div>';
 
             const precautionsList = document.getElementById('precautionsList');
             precautionsList.innerHTML = precautions.map(p => '<div class="precaution-item">' + precautionIcon + '<span>' + p + '</span></div>').join('');
